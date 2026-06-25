@@ -371,9 +371,25 @@
         </div>
     </main>
 
-    <!-- CORE SYSTEM ENGINE -->
-    <script>
-        let db = null;
+    <!-- CORE SYSTEM ENGINE & FIREBASE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, set, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEvAUvccNi6GBiHcrU0tAe0A6083qmNo",
+            authDomain: "rialmabritas.firebaseapp.com",
+            databaseURL: "https://rialmabritas-default-rtdb.firebaseio.com",
+            projectId: "rialmabritas",
+            storageBucket: "rialmabritas.firebasestorage.app",
+            messagingSenderId: "561149441126",
+            appId: "1:561149441126:web:d3717be661d172b6c7a9a7",
+            measurementId: "G-YJPQ2LSYMW"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
         let grafico1 = null, grafico2 = null, grafico3 = null;
         let todasNotasMemoria = [];
         let notesFiltradas = [];
@@ -383,16 +399,8 @@
         let filtroSegmentado = "todos";
         let usuarioLogado = null;
 
-        // Banco de dados estável IndexedDB
-        const request = indexedDB.open("RialmaErpBritaDB_v15", 1);
-        request.onupgradeneeded = function(e) {
-            let database = e.target.result;
-            if (!database.objectStoreNames.contains("notas")) {
-                database.createObjectStore("notas", { keyPath: "id", autoIncrement: true });
-            }
-        };
-        request.onsuccess = function(e) {
-            db = e.target.result;
+        // INICIALIZAÇÃO
+        window.onload = function() {
             verificarSessao();
         };
 
@@ -407,13 +415,14 @@
                 if(usuarioLogado) {
                     document.getElementById("tela-login").classList.add("hidden");
                     aplicarDiretrizesRBAC();
+                    iniciarListenerFirebase();
                     return;
                 }
             }
             document.getElementById("tela-login").classList.remove("hidden");
         }
 
-        function alternarVisibilidadeSenha() {
+        window.alternarVisibilidadeSenha = function() {
             const input = document.getElementById('loginSenha');
             const icone = document.getElementById('iconeOlho');
             if (input.type === 'password') {
@@ -423,9 +432,9 @@
                 input.type = 'password';
                 icone.classList.replace('fa-eye-slash', 'fa-eye');
             }
-        }
+        };
 
-        function executarLogin(e) {
+        window.executarLogin = function(e) {
             if (e) e.preventDefault();
             const u = document.getElementById("loginUsuario").value.trim().toLowerCase();
             const s = document.getElementById("loginSenha").value.trim().toLowerCase();
@@ -441,19 +450,20 @@
                 document.getElementById("tela-login").classList.add("hidden");
                 document.getElementById("formLogin").reset();
                 aplicarDiretrizesRBAC();
+                iniciarListenerFirebase();
             } else {
                 document.getElementById("erro-login").classList.remove("hidden");
                 document.getElementById("loginSenha").value = "";
                 document.getElementById("loginSenha").focus();
             }
-        }
+        };
 
-        function executarLogout() {
+        window.executarLogout = function() {
             sessionStorage.clear();
             localStorage.removeItem("rialma_campos_rapidos");
             usuarioLogado = null;
             window.location.reload();
-        }
+        };
 
         function aplicarDiretrizesRBAC() {
             document.getElementById("nomeUsuario").innerText = usuarioLogado.nome;
@@ -484,17 +494,16 @@
                 alternarAba("aba-dashboard");
             }
 
-            carregarDadosDoBanco();
             configurarNavegacaoTeclado();
             configurarMascarasEMonitores();
         }
 
-        function salvarConfigModoRapido() {
+        window.salvarConfigModoRapido = function() {
             localStorage.setItem("rialma_chk_manter", document.getElementById("chkManterDados").checked);
             if(!document.getElementById("chkManterDados").checked) localStorage.removeItem("rialma_campos_rapidos");
-        }
+        };
 
-        function salvarEstadoCamposModoRapido() {
+        window.salvarEstadoCamposModoRapido = function() {
             if(!document.getElementById("chkManterDados") || !document.getElementById("chkManterDados").checked) return;
             const dados = {
                 pedido: document.getElementById('pedido').value,
@@ -506,7 +515,7 @@
                 frete: document.getElementById('frete').value
             };
             localStorage.setItem("rialma_campos_rapidos", JSON.stringify(dados));
-        }
+        };
 
         function recuperarConfigEModoRapido() {
             const chk = localStorage.getItem("rialma_chk_manter");
@@ -534,21 +543,28 @@
                     let value = e.target.value.replace(/\D/g, "");
                     if(value === "") { e.target.value = ""; return; }
                     e.target.value = (parseFloat(value) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    salvarEstadoCamposModoRapido();
+                    window.salvarEstadoCamposModoRapido();
                 });
             });
         }
 
-        function carregarDadosDoBanco() {
-            if(!db) return;
-            const getAllRequest = db.transaction(["notas"], "readonly").objectStore("notas").getAll();
-            getAllRequest.onsuccess = function() {
-                todasNotasMemoria = getAllRequest.result.reverse();
+        // FIREBASE REALTIME LISTENER
+        function iniciarListenerFirebase() {
+            const notasRef = ref(db, 'notas');
+            onValue(notasRef, (snapshot) => {
+                const data = snapshot.val();
+                todasNotasMemoria = [];
+                if (data) {
+                    for (let key in data) {
+                        todasNotasMemoria.push({ id: key, ...data[key] });
+                    }
+                    todasNotasMemoria.reverse();
+                }
                 processarEFiltrarDados();
-            };
+            });
         }
 
-        function alternarAba(idAba) {
+        window.alternarAba = function(idAba) {
             if(usuarioLogado && usuarioLogado.permissao === "RECEBIMENTO" && idAba === "aba-dashboard") return;
             document.querySelectorAll('.aba-conteudo').forEach(aba => aba.classList.replace('block', 'hidden'));
             document.getElementById(idAba).classList.replace('hidden', 'block');
@@ -562,7 +578,7 @@
                 btnLanc.className = "w-full flex items-center gap-3 px-4 py-3 bg-blue-600 rounded-xl text-white font-medium transition";
                 btnDash.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition font-medium";
             }
-        }
+        };
 
         function formatarData(dStr) {
             if(!dStr) return '-';
@@ -576,14 +592,14 @@
                 campo.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        if (index === campos.length - 1) { adicionarPedidoComprador(); } 
+                        if (index === campos.length - 1) { window.adicionarPedidoComprador(); } 
                         else { campos[index + 1].focus(); }
                     }
                 });
             });
         }
 
-        function adicionarPedidoComprador() {
+        window.adicionarPedidoComprador = function() {
             const pedido = document.getElementById('pedido').value.trim();
             const tipoBrita = document.getElementById('tipoBrita').value;
             const qtdTotal = parseFloat(document.getElementById('qtdTotal').value) || 0;
@@ -601,10 +617,8 @@
                 statusFluxo: "Aguardando Almox", vistoGerente: "Não", motivoReprovacao: ''
             };
 
-            const transaction = db.transaction(["notas"], "readwrite");
-            let store = transaction.objectStore("notas");
-            
-            store.add(novoRegistro).onsuccess = function() {
+            const notasRef = ref(db, 'notas');
+            push(notasRef, novoRegistro).then(() => {
                 mostrarToast();
                 if(document.getElementById('chkManterDados').checked) {
                     document.getElementById('pedido').value = "";
@@ -613,12 +627,10 @@
                     document.getElementById('formCompra').reset();
                     localStorage.removeItem("rialma_campos_rapidos");
                 }
-            };
+            }).catch(error => console.error("Erro ao inserir:", error));
+        };
 
-            transaction.oncomplete = function() { carregarDadosDoBanco(); };
-        }
-
-        function abrirFormAlmoxarife(id, nrPedido, produto, qtd, valPed, frete) {
+        window.abrirFormAlmoxarife = function(id, nrPedido, produto, qtd, valPed, frete) {
             document.getElementById('moduloFormAlmoxarife').classList.remove('hidden');
             document.getElementById('almoxIdRegistro').value = id;
             
@@ -631,15 +643,15 @@
             document.getElementById('containerMotivoReprova').classList.add('hidden');
             document.getElementById('motivoReprova').value = "";
             document.getElementById('fornecedor').focus();
-        }
+        };
 
-        function cancelarPreenchimentoAlmox() {
+        window.cancelarPreenchimentoAlmox = function() {
             document.getElementById('moduloFormAlmoxarife').classList.add('hidden');
             document.getElementById('formAlmox').reset();
-        }
+        };
 
-        function processarFluxoAlmoxarife(decisao) {
-            const id = parseInt(document.getElementById('almoxIdRegistro').value);
+        window.processarFluxoAlmoxarife = function(decisao) {
+            const id = document.getElementById('almoxIdRegistro').value; // Agora é uma string (ID do Firebase)
             const fornecedor = document.getElementById('fornecedor').value.trim();
             const nf = document.getElementById('notaFiscal').value.trim();
             const valNf = document.getElementById('valNota').value || '-';
@@ -662,71 +674,47 @@
                 return;
             }
 
-            const transaction = db.transaction(["notas"], "readwrite");
-            const store = transaction.objectStore("notas");
-            
-            store.get(id).onsuccess = function(e) {
-                const data = e.target.result;
-                data.fornecedor = fornecedor;
-                data.notaFiscal = nf;
-                data.valNota = valNf;
-                data.pesoTon = peso;
-                data.dataRecebimento = dtRec;
-                data.dataVencimentoBoleto = dtVenc;
-                data.placa = placa;
-                data.motorista = motorista;
-                
-                if (decisao === 'Aprovado') {
-                    data.statusFluxo = "Aguardando Gerente";
-                    data.motivoReprovacao = "";
-                } else {
-                    data.statusFluxo = "Reprovado pelo Almox";
-                    data.motivoReprovacao = motivo;
-                }
-                store.put(data);
-            };
-
-            transaction.oncomplete = function() {
+            const notaRef = ref(db, 'notas/' + id);
+            update(notaRef, {
+                fornecedor: fornecedor,
+                notaFiscal: nf,
+                valNota: valNf,
+                pesoTon: peso,
+                dataRecebimento: dtRec,
+                dataVencimentoBoleto: dtVenc,
+                placa: placa,
+                motorista: motorista,
+                statusFluxo: decisao === 'Aprovado' ? "Aguardando Gerente" : "Reprovado pelo Almox",
+                motivoReprovacao: decisao === 'Aprovado' ? "" : motivo
+            }).then(() => {
                 mostrarToast();
-                cancelarPreenchimentoAlmox();
-                carregarDadosDoBanco();
-            };
-        }
+                window.cancelarPreenchimentoAlmox();
+            }).catch(error => console.error("Erro ao atualizar:", error));
+        };
 
-        function gerenciarAutorizacao(id, status) {
-            const transaction = db.transaction(["notas"], "readwrite");
-            const store = transaction.objectStore("notas");
-            
-            store.get(id).onsuccess = function(e) {
-                const data = e.target.result;
-                data.vistoGerente = status;
-                data.statusFluxo = (status === "Sim") ? "Autorizado / Concluído" : "Aguardando Gerente";
-                store.put(data);
-            };
-
-            transaction.oncomplete = function() {
+        window.gerenciarAutorizacao = function(id, status) {
+            const notaRef = ref(db, 'notas/' + id);
+            update(notaRef, {
+                vistoGerente: status,
+                statusFluxo: (status === "Sim") ? "Autorizado / Concluído" : "Aguardando Gerente"
+            }).then(() => {
                 mostrarToast();
-                carregarDadosDoBanco();
-            };
-        }
+            }).catch(error => console.error("Erro ao autorizar:", error));
+        };
 
-        function excluirRegistro(id) {
+        window.excluirRegistro = function(id) {
             if (confirm("Tem certeza que deseja excluir permanentemente este pedido do sistema?")) {
-                const transaction = db.transaction(["notas"], "readwrite");
-                const store = transaction.objectStore("notas");
-                store.delete(id).onsuccess = function() {
+                const notaRef = ref(db, 'notas/' + id);
+                remove(notaRef).then(() => {
                     mostrarToast();
-                };
-                transaction.oncomplete = function() {
-                    carregarDadosDoBanco();
-                };
+                }).catch(error => console.error("Erro ao deletar:", error));
             }
-        }
+        };
 
-        function alternarTodosCheckboxes(masterCheckbox) {
+        window.alternarTodosCheckboxes = function(masterCheckbox) {
             const checkboxes = document.querySelectorAll('.select-nota');
             checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
-        }
+        };
 
         function mostrarToast() {
             const toast = document.getElementById('toastSucesso');
@@ -734,13 +722,13 @@
             setTimeout(() => toast.classList.add('hidden'), 1500);
         }
 
-        function mudarTermoPesquisa() {
+        window.mudarTermoPesquisa = function() {
             termoPesquisa = document.getElementById('campoPesquisa').value.toLowerCase();
             paginaAtual = 1;
             renderizarTabelaPaginada();
-        }
+        };
 
-        function definirFiltroRapido(tipoFiltro) {
+        window.definirFiltroRapido = function(tipoFiltro) {
             filtroSegmentado = tipoFiltro;
             ['todos', 'pendAlmox', 'pendGerente'].forEach(b => {
                 const elemento = document.getElementById(`filtro-${b}`);
@@ -752,7 +740,7 @@
             });
             paginaAtual = 1;
             renderizarTabelaPaginada();
-        }
+        };
 
         function processarEFiltrarDados() {
             let totalPeso = 0, pAlmox = 0;
@@ -888,20 +876,20 @@
                 const classeLinha = temDivergencia ? 'linha-divergente border-l-4 border-rose-500' : 'hover:bg-slate-50';
 
                 let acaoCelula = `<td class="p-2 text-center text-slate-400 font-medium">-</td>`;
-                let botaoLixeira = (ehComprador || ehGerente) ? `<button onclick="excluirRegistro(${nota.id})" class="text-rose-500 hover:text-rose-700 ml-2 p-1 text-[11px]" title="Excluir Registro Antigo/Errado"><i class="fa-solid fa-trash"></i></button>` : '';
+                let botaoLixeira = (ehComprador || ehGerente) ? `<button onclick="excluirRegistro('${nota.id}')" class="text-rose-500 hover:text-rose-700 ml-2 p-1 text-[11px]" title="Excluir Registro Antigo/Errado"><i class="fa-solid fa-trash"></i></button>` : '';
                 
                 if(ehAlmox) {
                     if(nota.statusFluxo === "Aguardando Almox") {
-                        acaoCelula = `<td class="p-2 text-center"><button onclick="abrirFormAlmoxarife(${nota.id}, '${nota.pedido}', '${nota.tipoBrita}', ${nota.qtdTotal}, '${nota.valPedido}', '${nota.frete}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-truck-pickup"></i> Confrontar</button></td>`;
+                        acaoCelula = `<td class="p-2 text-center"><button onclick="abrirFormAlmoxarife('${nota.id}', '${nota.pedido}', '${nota.tipoBrita}', ${nota.qtdTotal}, '${nota.valPedido}', '${nota.frete}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-truck-pickup"></i> Confrontar</button></td>`;
                     } else {
                         acaoCelula = `<td class="p-2 text-center text-emerald-600 font-bold text-[11px]"><i class="fa-solid fa-square-check"></i> Concluído</td>`;
                     }
                 } 
                 else if(ehGerente) {
                     if(nota.statusFluxo === "Aguardando Gerente") {
-                        acaoCelula = `<td class="p-2 text-center flex items-center justify-center"><button onclick="gerenciarAutorizacao(${nota.id}, 'Sim')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] px-3 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-signature"></i> Autorizar</button>${botaoLixeira}</td>`;
+                        acaoCelula = `<td class="p-2 text-center flex items-center justify-center"><button onclick="gerenciarAutorizacao('${nota.id}', 'Sim')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] px-3 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-signature"></i> Autorizar</button>${botaoLixeira}</td>`;
                     } else if(nota.statusFluxo === "Autorizado / Concluído") {
-                        acaoCelula = `<td class="p-2 text-center flex items-center justify-center"><button onclick="gerenciarAutorizacao(${nota.id}, 'Não')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] px-2 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-undo"></i> Revogar</button>${botaoLixeira}</td>`;
+                        acaoCelula = `<td class="p-2 text-center flex items-center justify-center"><button onclick="gerenciarAutorizacao('${nota.id}', 'Não')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] px-2 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-undo"></i> Revogar</button>${botaoLixeira}</td>`;
                     } else {
                         acaoCelula = `<td class="p-2 text-center flex items-center justify-center text-slate-400 font-medium">- ${botaoLixeira}</td>`;
                     }
@@ -948,17 +936,17 @@
             document.getElementById('btnProximo').disabled = (paginaAtual === totalPaginas);
         }
 
-        function paginaAnterior() { if (paginaAtual > 1) { paginaAtual--; renderizarTabelaPaginada(); } }
-        function proximaPagina() { if (paginaAtual < Math.ceil(notesFiltradas.length / registrosPorPagina)) { paginaAtual++; renderizarTabelaPaginada(); } }
+        window.paginaAnterior = function() { if (paginaAtual > 1) { paginaAtual--; renderizarTabelaPaginada(); } };
+        window.proximaPagina = function() { if (paginaAtual < Math.ceil(notesFiltradas.length / registrosPorPagina)) { paginaAtual++; renderizarTabelaPaginada(); } };
 
-        function exportarParaPDF() {
+        window.exportarParaPDF = function() {
             const checkboxes = document.querySelectorAll('.select-nota:checked');
             if (checkboxes.length === 0) {
                 alert("Marque as caixas de seleção na tabela para escolher quais registros exportar para o PDF!");
                 return;
             }
 
-            const idsSelecionados = Array.from(checkboxes).map(cb => parseInt(cb.getAttribute('data-id')));
+            const idsSelecionados = Array.from(checkboxes).map(cb => cb.getAttribute('data-id'));
             const dadosParaPdf = todasNotasMemoria.filter(nota => idsSelecionados.includes(nota.id));
 
             let totalPesoSelecionado = 0;
@@ -972,12 +960,10 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'mm', 'a4'); 
 
-            // Cores base do design corporativo
-            const corPrimaria = [15, 23, 42]; // Slate 900
-            const corSecundaria = [37, 99, 235]; // Blue 600
-            const corTexto = [51, 65, 85]; // Slate 700
+            const corPrimaria = [15, 23, 42]; 
+            const corSecundaria = [37, 99, 235]; 
+            const corTexto = [51, 65, 85]; 
 
-            // Header preenchido para maior elegância
             doc.setFillColor(...corPrimaria);
             doc.rect(0, 0, doc.internal.pageSize.getWidth(), 22, 'F');
             
@@ -990,7 +976,6 @@
             doc.setFontSize(9);
             doc.text(`Filtro: Seleção Dinâmica | Emitido em: ${new Date().toLocaleString('pt-BR')} | Sistema ERP v7.5`, 14, 16);
 
-            // Tabela com colunas realinhadas (adicionado Valor NF)
             const cabecalhos = [["Ped.", "Fornecedor", "Tipo", "Qtd Ped", "NF", "Valor NF", "Peso Real", "Dt Rec.", "Venc. Bol.", "Placa / Mot.", "Fluxo"]];
             
             const linhas = dadosParaPdf.map(n => [
@@ -1007,7 +992,6 @@
                 n.statusFluxo
             ]);
 
-            // Linha totalizadora no rodapé da tabela
             linhas.push([
                 "TOTAL",
                 `${dadosParaPdf.length} item(ns)`,
@@ -1061,7 +1045,6 @@
                 }
             });
 
-            // GERAÇÃO DO QUADRO RESUMO AGRUPADO POR TIPO DE MATERIAL
             let resumoObj = {};
             dadosParaPdf.forEach(n => {
                 if(!resumoObj[n.tipoBrita]) {
@@ -1079,7 +1062,6 @@
 
             let finalY = doc.lastAutoTable.finalY || 30;
             
-            // Controle anti-quebra (se o espaço restante for muito pequeno, cria nova página)
             if (finalY > doc.internal.pageSize.getHeight() - 45) {
                 doc.addPage();
                 finalY = 15;
@@ -1122,9 +1104,9 @@
             doc.text("Assinatura Gerente de Compras", width / 2, ultimaY + 30, { align: "center" });
 
             doc.save(`RIALMA_Relatorio_Confronto_${new Date().toISOString().slice(0,10)}.pdf`);
-        }
+        };
 
-        function exportarParaExcel() {
+        window.exportarParaExcel = function() {
             if(todasNotasMemoria.length === 0) return;
             let csv = "﻿Pedido;Fornecedor;Tipo Brita;Qtd Pedido;Nota Fiscal;Peso Real;Data Recebimento;Vencimento Boleto;Placa;Motorista;Status\n";
             todasNotasMemoria.forEach(n => { csv += `${n.pedido};${n.fornecedor};${n.tipoBrita};${n.qtdTotal};${n.notaFiscal};${n.pesoTon};${n.dataRecebimento};${n.dataVencimentoBoleto};${n.placa};${n.motorista};${n.statusFluxo}\n`; });
@@ -1133,35 +1115,31 @@
             link.setAttribute("href", URL.createObjectURL(blob));
             link.setAttribute("download", `RIALMA_Exportacao_Geral_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        }
+        };
 
-        function limparBanco() {
+        window.limparBanco = function() {
             if(!usuarioLogado || usuarioLogado.permissao !== "MASTER") return;
             if(confirm("Deseja expurgar permanentemente todos os registros do sistema?")) {
-                db.transaction(["notas"], "readwrite").objectStore("notas").clear().onsuccess = function() { carregarDadosDoBanco(); };
+                set(ref(db, 'notas'), null).then(() => {
+                    mostrarToast();
+                }).catch(error => console.error("Erro ao limpar:", error));
             }
-        }
+        };
 
-        function fazerBackup() {
-            if (!db) { alert("Banco de dados não conectado!"); return; }
-            const transaction = db.transaction(["notas"], "readonly");
-            const store = transaction.objectStore("notas");
-            const getAllRequest = store.getAll();
-            
-            getAllRequest.onsuccess = function() {
-                const dadosStr = JSON.stringify(getAllRequest.result, null, 2);
-                const blob = new Blob([dadosStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `backup_rialma_erp_db_${new Date().toISOString().slice(0,10)}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                mostrarToast();
-            };
-        }
+        window.fazerBackup = function() {
+            if (todasNotasMemoria.length === 0) { alert("Nenhum dado para backup!"); return; }
+            const dadosStr = JSON.stringify(todasNotasMemoria, null, 2);
+            const blob = new Blob([dadosStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_rialma_erp_db_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            mostrarToast();
+        };
     </script>
 </body>
 </html>
