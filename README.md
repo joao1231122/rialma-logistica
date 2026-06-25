@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIALMA S.A - ERP Corporativo Enterprise v7.5</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para Gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF para relatórios em PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        .select-none { user-select: none; }
+        .linha-divergente { background-color: #fef2f2 !important; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans flex h-screen overflow-hidden text-slate-800">
+
+    <!-- ================= TELA DE LOGIN ================= -->
+    <div id="tela-login" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4 select-none">
+        <div class="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl border border-slate-200">
+            <div class="flex items-center gap-3 mb-6 justify-center">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md shadow-blue-500/20">
+                    R
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-base font-black tracking-wider text-slate-800">RIALMA S.A</span>
+                    <span class="text-[11px] text-slate-400 font-bold uppercase tracking-tight">Portal de Acesso Integrado</span>
+                </div>
+            </div>
+            
+            <div id="erro-login" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation"></i> Credenciais inválidas.
+            </div>
+
+            <form id="formLogin" onsubmit="executarLogin(event)" class="space-y-4" autocomplete="off">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Usuário</label>
+                    <input type="text" id="loginUsuario" autocomplete="off" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-medium text-slate-700" placeholder="gerente, comprador ou almox" required>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Senha</label>
+                    <div class="relative">
+                        <input type="password" id="loginSenha" autocomplete="off" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-medium text-slate-700 pr-10" placeholder="••••••••" required>
+                        <button type="button" onclick="alternarVisibilidadeSenha()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 focus:outline-none">
+                            <i id="iconeOlho" class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2.5 rounded-xl transition shadow-lg shadow-blue-600/10 mt-2">
+                    Autenticar no Sistema
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MENU LATERAL ================= -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between hidden md:flex border-r border-slate-800 select-none">
+        <div>
+            <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-500/20">R</div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold tracking-wider text-slate-100">RIALMA S.A</span>
+                        <span class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">Logística v7.5</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 mx-3 my-4 bg-slate-800/50 border border-slate-800 rounded-xl flex items-center gap-3">
+                <div class="w-9 h-9 bg-slate-700 rounded-full flex items-center justify-center text-slate-300 font-bold uppercase" id="avatarUsuario">U</div>
+                <div class="flex flex-col overflow-hidden">
+                    <span class="text-xs font-bold text-slate-200 truncate" id="nomeUsuario">Usuário</span>
+                    <span class="text-[9px] bg-blue-500/10 text-blue-400 font-bold px-1.5 py-0.5 rounded uppercase tracking-wide mt-0.5 w-max" id="cargoUsuario">CARGO</span>
+                </div>
+            </div>
+
+            <nav class="p-3 space-y-1">
+                <button onclick="alternarAba('aba-dashboard')" id="btn-aba-dashboard" class="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 rounded-xl text-white font-medium transition">
+                    <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+                </button>
+                <button onclick="alternarAba('aba-lancamentos')" id="btn-aba-lancamentos" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition font-medium">
+                    <i class="fa-solid fa-receipt w-5"></i> Fluxo de Lançamentos
+                </button>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-800 space-y-3">
+            <button onclick="executarLogout()" class="w-full flex items-center justify-center gap-2 text-xs bg-slate-800 hover:bg-rose-950/40 hover:text-rose-400 text-slate-400 p-2 rounded-xl transition font-medium border border-slate-700/60">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Desconectar
+            </button>
+            <div class="flex items-center justify-between text-[10px] text-slate-500">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-emerald-500"></i> RBAC Ativo</span>
+                <span>v7.5</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 flex flex-col overflow-y-auto">
+        
+        <!-- ================= DASHBOARD ================= -->
+        <div id="aba-dashboard" class="aba-conteudo block">
+            <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 border-b border-slate-200">
+                <h1 class="text-lg font-bold text-slate-800">Indicadores de Recebimento de Britas</h1>
+                <span class="text-[11px] font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrows-rotate animate-spin text-xs"></i> Monitoramento Online
+                </span>
+            </header>
+
+            <div class="p-6 space-y-6">
+                <!-- CARDS DE MÉTRICAS -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total de Pedidos</p>
+                            <h3 id="cardTotalNotas" class="text-xl font-black text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-lg"><i class="fa-solid fa-file-invoice"></i></div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Peso Real Entregue</p>
+                            <h3 id="cardTotalPeso" class="text-xl font-black text-slate-800 mt-1">0.00 TN</h3>
+                        </div>
+                        <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center text-lg"><i class="fa-solid fa-weight-hanging"></i></div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Valor total (NF)</p>
+                            <h3 id="cardTotalFinanceiro" class="text-xl font-black text-slate-800 mt-1">R$ 0,00</h3>
+                        </div>
+                        <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-lg"><i class="fa-solid fa-dollar-sign"></i></div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total em Fretes</p>
+                            <h3 id="cardTotalFretes" class="text-xl font-black text-amber-700 mt-1">R$ 0,00</h3>
+                        </div>
+                        <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center text-lg"><i class="fa-solid fa-truck"></i></div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Aguardando Portaria</p>
+                            <h3 id="cardPendenteAlmox" class="text-xl font-black text-orange-600 mt-1">0</h3>
+                        </div>
+                        <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-lg flex items-center justify-center text-lg"><i class="fa-solid fa-clock"></i></div>
+                    </div>
+                </div>
+
+                <!-- GRÁFICOS -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-xs font-bold text-slate-500 mb-4 uppercase tracking-wider">Mix de Distribuição por Tipo (TN)</h3>
+                        <div class="relative max-h-[220px] flex justify-center"><canvas id="graficoMixBrita"></canvas></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-xs font-bold text-slate-500 mb-4 uppercase tracking-wider">Volume de Pedidos por Produto</h3>
+                        <div class="relative max-h-[220px]"><canvas id="graficoBarrasBrita"></canvas></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-xs font-bold text-slate-500 mb-4 uppercase tracking-wider">Recebimentos no Período (TN / Dia)</h3>
+                        <div class="relative max-h-[220px]"><canvas id="graficoLinhaTempo"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= LANÇAMENTOS E AUTORIZAÇÕES ================= -->
+        <div id="aba-lancamentos" class="aba-conteudo hidden">
+            <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 border-b border-slate-200">
+                <h1 class="text-lg font-bold text-slate-800" id="tituloPainelPrincipal">Fluxo Operacional Integrado</h1>
+                <div class="flex items-center gap-4">
+                    <label id="containerModoRapido" class="inline-flex items-center cursor-pointer bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600">
+                        <input type="checkbox" id="chkManterDados" class="sr-only peer" checked onchange="salvarConfigModoRapido()">
+                        <div class="w-7 h-4 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 relative mr-2"></div>
+                        <span>Manter dados repetitivos (Modo Rápido)</span>
+                    </label>
+                    <span id="toastSucesso" class="hidden text-xs bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-xl shadow-sm"><i class="fa-solid fa-circle-check"></i> Operação Concluída com Sucesso!</span>
+                </div>
+            </header>
+
+            <div class="p-6 space-y-4">
+                
+                <!-- FORMULÁRIO COMPRADOR -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hidden" id="moduloFormComprador">
+                    <h2 class="text-xs font-black uppercase text-blue-600 tracking-wider mb-4"><i class="fa-solid fa-cart-plus"></i> Inserir Novo Pedido de Compra</h2>
+                    <form id="formCompra" onsubmit="event.preventDefault(); adicionarPedidoComprador();" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nº Pedido</label>
+                            <input type="text" id="pedido" oninput="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none font-semibold text-slate-800" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tipo da Brita</label>
+                            <select id="tipoBrita" onchange="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none font-medium">
+                                <option value="BRITA 1">BRITA 1</option>
+                                <option value="BRITA 2">BRITA 2</option>
+                                <option value="BRITA 3">BRITA 3</option>
+                                <option value="BRITA 4">BRITA 4</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Qtd Pedido (TN)</label>
+                            <input type="number" step="0.01" id="qtdTotal" oninput="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Valor do Pedido</label>
+                            <input type="text" id="valPedido" placeholder="R$ 0,00" oninput="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido input-moeda outline-none font-medium" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Data Pagamento</label>
+                            <input type="date" id="dataPgto" onchange="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Data Previsão Entrega</label>
+                            <input type="date" id="dataEntrega" onchange="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Valor do Frete</label>
+                            <input type="text" id="frete" placeholder="R$ 0,00" oninput="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido input-moeda outline-none font-medium" required>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full h-[38px] bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-md transition mt-5 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i> Lançar e Enviar p/ Almoxarifado
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- FORMULÁRIO CONFRONTO ALMOXARIFE -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-emerald-300 hidden bg-emerald-50/5" id="moduloFormAlmoxarife">
+                    <div class="flex items-center justify-between mb-4 border-b pb-2">
+                        <h2 class="text-xs font-black uppercase text-emerald-700 tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-code-compare text-base"></i> Painel de Confronto e Recebimento de Carga
+                        </h2>
+                        <button onclick="cancelarPreenchimentoAlmox()" class="text-xs text-slate-400 hover:text-slate-600 font-bold"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+                    </div>
+
+                    <!-- ESPELHO DOS DADOS DO COMPRADOR -->
+                    <div class="mb-5 p-4 bg-slate-900 text-slate-100 rounded-xl grid grid-cols-2 md:grid-cols-5 gap-4 text-xs select-none">
+                        <div><p class="text-slate-400 text-[10px] font-bold uppercase">Pedido do Comprador</p><p class="text-base font-black text-blue-400" id="lblAlmoxPedido">#--</p></div>
+                        <div><p class="text-slate-400 text-[10px] font-bold uppercase">Produto Solicitado</p><p class="font-bold text-white" id="lblAlmoxProduto">--</p></div>
+                        <div><p class="text-slate-400 text-[10px] font-bold uppercase">Peso Solicitado</p><p class="font-bold text-amber-400" id="lblAlmoxQtd">0 TN</p></div>
+                        <div><p class="text-slate-400 text-[10px] font-bold uppercase">Valor do Pedido</p><p class="font-bold text-emerald-400" id="lblAlmoxValPed">R$ 0,00</p></div>
+                        <div><p class="text-slate-400 text-[10px] font-bold uppercase">Valor do Frete</p><p class="font-bold text-indigo-400" id="lblAlmoxFrete">R$ 0,00</p></div>
+                    </div>
+
+                    <!-- FORMULÁRIO DE ENTRADA DO ALMOXARIFE -->
+                    <form id="formAlmox" onsubmit="event.preventDefault();" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <input type="hidden" id="almoxIdRegistro">
+                        
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nome do Fornecedor</label>
+                            <input type="text" id="fornecedor" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-semibold focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Número da NF</label>
+                            <input type="text" id="notaFiscal" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-mono font-bold focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Valor Total da NF</label>
+                            <input type="text" id="valNota" placeholder="R$ 0,00" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-bold focus:ring-2 focus:ring-emerald-500/20 input-moeda outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Peso Recebido Real (TN)</label>
+                            <input type="number" step="0.01" id="pesoTon" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-black focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data do Recebimento</label>
+                            <input type="date" id="dataRecebimento" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Vencimento do Boleto</label>
+                            <input type="date" id="dataVencimentoBoleto" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Placa do Veículo</label>
+                            <input type="text" id="placa" placeholder="ABC1D23" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white uppercase font-mono font-bold focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nome do Motorista</label>
+                            <input type="text" id="motorista" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-semibold focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                        </div>
+
+                        <!-- MOTIVO DE REPROVAÇÃO (OCULTO POR PADRÃO) -->
+                        <div id="containerMotivoReprova" class="hidden lg:col-span-4 bg-rose-50 p-3 rounded-lg border border-rose-200">
+                            <label class="block text-[10px] font-bold text-rose-700 uppercase tracking-wider mb-1">Descreva o Motivo da Reprovação / Divergência</label>
+                            <input type="text" id="motivoReprova" class="w-full p-2 border border-rose-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/20 bg-white" placeholder="Ex: Carga veio com peso abaixo do tolerado / Produto danificado...">
+                        </div>
+
+                        <!-- BOTÕES DE DECISÃO -->
+                        <div class="lg:col-span-4 flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100">
+                            <button type="button" onclick="processarFluxoAlmoxarife('Reprovado')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-6 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+                                <i class="fa-solid fa-circle-xmark"></i> Reprovar Recebimento
+                            </button>
+                            <button type="button" onclick="processarFluxoAlmoxarife('Aprovado')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-6 py-2.5 rounded-lg shadow-md transition flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i> Aprovar e Enviar p/ Gerente
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- FILTROS AVANÇADOS -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="relative w-full sm:w-64">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
+                            <input type="text" id="campoPesquisa" oninput="mudarTermoPesquisa()" placeholder="Buscar por Pedido, NF, Fornecedor..." class="w-full pl-9 pr-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+                        </div>
+                        
+                        <div class="flex flex-wrap bg-slate-100 p-1 rounded-xl border border-slate-200 gap-1 text-[11px] font-semibold" id="botoesFiltrosRapidos">
+                            <button onclick="definirFiltroRapido('todos')" id="filtro-todos" class="px-3 py-1.5 rounded-lg bg-white text-slate-800 shadow-sm transition">Todos Lançamentos</button>
+                            <button onclick="definirFiltroRapido('pendAlmox')" id="filtro-pendAlmox" class="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 transition">Aguardando Almox</button>
+                            <button onclick="definirFiltroRapido('pendGerente')" id="filtro-pendGerente" class="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 transition">Aguardando Gerente</button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2" id="acoesControleMaster">
+                        <button onclick="fazerBackup()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-cloud-arrow-down"></i> Fazer Backup (Segurança)
+                        </button>
+                        <button onclick="exportarParaPDF()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-file-pdf"></i> Exportar Selecionados para PDF
+                        </button>
+                        <button onclick="exportarParaExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition flex items-center gap-2"><i class="fa-solid fa-file-excel"></i> Exportar (CSV)</button>
+                        <button onclick="limparBanco()" id="btnLimparTudo" class="text-xs text-rose-500 hover:text-rose-700 font-semibold px-3 py-2 transition hidden"><i class="fa-solid fa-trash-can"></i> Expurgar Registros</button>
+                    </div>
+                </div>
+
+                <!-- GRID DE STATUS UNIFICADO -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 uppercase font-bold tracking-wider border-b border-slate-200 whitespace-nowrap text-[10px]">
+                                    <th class="p-3 w-10 text-center"><input type="checkbox" id="chkSelecionarTodos" onchange="alternarTodosCheckboxes(this)" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500"></th>
+                                    <th class="p-3">Pedido</th>
+                                    <th class="p-3">Fornecedor</th>
+                                    <th class="p-3">Tipo Brita</th>
+                                    <th class="p-3">Qtd Pedido</th>
+                                    <th class="p-3">Val. Pedido</th>
+                                    <th class="p-3">Previsão Entr.</th>
+                                    <th class="p-3 font-semibold">NF</th>
+                                    <th class="p-3">Val. NF</th>
+                                    <th class="p-3">Peso Real (TN)</th>
+                                    <th class="p-3">Dt Rec.</th>
+                                    <th class="p-3">Venc. Bol.</th>
+                                    <th class="p-3">Placa / Mot.</th>
+                                    <th class="p-3 text-center">Status de Fluxo</th>
+                                    <th class="p-3 text-center">Autorização</th>
+                                    <th class="p-3 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaCorpo" class="text-slate-700 divide-y divide-slate-100 whitespace-nowrap"></tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="bg-slate-50 px-4 py-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                        <span id="infoPaginacao" class="font-medium">Exibindo 0 de 0 notas</span>
+                        <div class="flex gap-1.5">
+                            <button id="btnAnterior" onclick="paginaAnterior()" class="px-3 py-1.5 border border-slate-200 bg-white rounded-lg font-medium transition disabled:opacity-50">Anterior</button>
+                            <button id="btnProximo" onclick="proximaPagina()" class="px-3 py-1.5 border border-slate-200 bg-white rounded-lg font-medium transition disabled:opacity-50">Próximo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- CORE SYSTEM ENGINE -->
+    <script>
+        let db = null;
+        let grafico1 = null, grafico2 = null, grafico3 = null;
+        let todasNotasMemoria = [];
+        let notesFiltradas = [];
+        let paginaAtual = 1;
+        const registrosPorPagina = 25;
+        let termoPesquisa = "";
+        let filtroSegmentado = "todos";
+        let usuarioLogado = null;
+
+        // Banco de dados estável IndexedDB
+        const request = indexedDB.open("RialmaErpBritaDB_v15", 1);
+        request.onupgradeneeded = function(e) {
+            let database = e.target.result;
+            if (!database.objectStoreNames.contains("notas")) {
+                database.createObjectStore("notas", { keyPath: "id", autoIncrement: true });
+            }
+        };
+        request.onsuccess = function(e) {
+            db = e.target.result;
+            verificarSessao();
+        };
+
+        function verificarSessao() {
+            const cache = sessionStorage.getItem("rialma_secure_session");
+            if (cache) {
+                const u = cache.trim().toLowerCase();
+                if (u === "gerente") usuarioLogado = { nome: "GERENTE DE COMPRAS", cargo: "GERENTE", permissao: "MASTER" };
+                else if (u === "comprador") usuarioLogado = { nome: "COMPRADOR SUPL.", cargo: "COMPRADOR", permissao: "SUPRIMENTOS" };
+                else if (u === "almox") usuarioLogado = { nome: "ALMOXARIFADO CENTRAL", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO" };
+                
+                if(usuarioLogado) {
+                    document.getElementById("tela-login").classList.add("hidden");
+                    aplicarDiretrizesRBAC();
+                    return;
+                }
+            }
+            document.getElementById("tela-login").classList.remove("hidden");
+        }
+
+        function alternarVisibilidadeSenha() {
+            const input = document.getElementById('loginSenha');
+            const icone = document.getElementById('iconeOlho');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icone.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icone.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        function executarLogin(e) {
+            if (e) e.preventDefault();
+            const u = document.getElementById("loginUsuario").value.trim().toLowerCase();
+            const s = document.getElementById("loginSenha").value.trim().toLowerCase();
+
+            let autentico = false;
+            if (u === "gerente" && s === "gerente") { autentico = true; usuarioLogado = { nome: "GERENTE DE COMPRAS", cargo: "GERENTE", permissao: "MASTER" }; }
+            else if (u === "comprador" && s === "comprador") { autentico = true; usuarioLogado = { nome: "COMPRADOR SUPL.", cargo: "COMPRADOR", permissao: "SUPRIMENTOS" }; }
+            else if (u === "almox" && s === "almox") { autentico = true; usuarioLogado = { nome: "ALMOXARIFADO CENTRAL", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO" }; }
+
+            if (autentico) {
+                sessionStorage.setItem("rialma_secure_session", u);
+                document.getElementById("erro-login").classList.add("hidden");
+                document.getElementById("tela-login").classList.add("hidden");
+                document.getElementById("formLogin").reset();
+                aplicarDiretrizesRBAC();
+            } else {
+                document.getElementById("erro-login").classList.remove("hidden");
+                document.getElementById("loginSenha").value = "";
+                document.getElementById("loginSenha").focus();
+            }
+        }
+
+        function executarLogout() {
+            sessionStorage.clear();
+            localStorage.removeItem("rialma_campos_rapidos");
+            usuarioLogado = null;
+            window.location.reload();
+        }
+
+        function aplicarDiretrizesRBAC() {
+            document.getElementById("nomeUsuario").innerText = usuarioLogado.nome;
+            document.getElementById("cargoUsuario").innerText = usuarioLogado.cargo;
+            document.getElementById("avatarUsuario").innerText = usuarioLogado.nome.charAt(0);
+
+            document.getElementById("btn-aba-dashboard").classList.remove("hidden");
+            document.getElementById("moduloFormComprador").classList.add("hidden");
+            document.getElementById("moduloFormAlmoxarife").classList.add("hidden");
+            document.getElementById("containerModoRapido").classList.add("hidden");
+            document.getElementById("btnLimparTudo").classList.add("hidden");
+
+            if (usuarioLogado.permissao === "RECEBIMENTO") {
+                document.getElementById("btn-aba-dashboard").classList.add("hidden");
+                document.getElementById("tituloPainelPrincipal").innerText = "Painel de Entrada de Materiais";
+                alternarAba("aba-lancamentos");
+            } 
+            else if (usuarioLogado.permissao === "MASTER") {
+                document.getElementById("btnLimparTudo").classList.remove("hidden");
+                document.getElementById("tituloPainelPrincipal").innerText = "Auditoria Global e Aprovação";
+                alternarAba("aba-dashboard");
+            } 
+            else if (usuarioLogado.permissao === "SUPRIMENTOS") {
+                document.getElementById("moduloFormComprador").classList.remove("hidden");
+                document.getElementById("containerModoRapido").classList.remove("hidden");
+                document.getElementById("tituloPainelPrincipal").innerText = "Gestão de Ordens de Compra";
+                recuperarConfigEModoRapido();
+                alternarAba("aba-dashboard");
+            }
+
+            carregarDadosDoBanco();
+            configurarNavegacaoTeclado();
+            configurarMascarasEMonitores();
+        }
+
+        function salvarConfigModoRapido() {
+            localStorage.setItem("rialma_chk_manter", document.getElementById("chkManterDados").checked);
+            if(!document.getElementById("chkManterDados").checked) localStorage.removeItem("rialma_campos_rapidos");
+        }
+
+        function salvarEstadoCamposModoRapido() {
+            if(!document.getElementById("chkManterDados") || !document.getElementById("chkManterDados").checked) return;
+            const dados = {
+                pedido: document.getElementById('pedido').value,
+                tipoBrita: document.getElementById('tipoBrita').value,
+                qtdTotal: document.getElementById('qtdTotal').value,
+                valPedido: document.getElementById('valPedido').value,
+                dataPgto: document.getElementById('dataPgto').value,
+                dataEntrega: document.getElementById('dataEntrega').value,
+                frete: document.getElementById('frete').value
+            };
+            localStorage.setItem("rialma_campos_rapidos", JSON.stringify(dados));
+        }
+
+        function recuperarConfigEModoRapido() {
+            const chk = localStorage.getItem("rialma_chk_manter");
+            if(chk !== null && document.getElementById("chkManterDados")) {
+                document.getElementById("chkManterDados").checked = (chk === "true");
+            }
+            if(document.getElementById("chkManterDados") && document.getElementById("chkManterDados").checked) {
+                const dadosSalvos = localStorage.getItem("rialma_campos_rapidos");
+                if(dadosSalvos) {
+                    const dados = JSON.parse(dadosSalvos);
+                    document.getElementById('pedido').value = dados.pedido || "";
+                    document.getElementById('tipoBrita').value = dados.tipoBrita || "BRITA 1";
+                    document.getElementById('qtdTotal').value = dados.qtdTotal || "";
+                    document.getElementById('valPedido').value = dados.valPedido || "";
+                    document.getElementById('dataPgto').value = dados.dataPgto || "";
+                    document.getElementById('dataEntrega').value = dados.dataEntrega || "";
+                    document.getElementById('frete').value = dados.frete || "";
+                }
+            }
+        }
+
+        function configurarMascarasEMonitores() {
+            document.querySelectorAll('.input-moeda').forEach(input => {
+                input.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, "");
+                    if(value === "") { e.target.value = ""; return; }
+                    e.target.value = (parseFloat(value) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                    salvarEstadoCamposModoRapido();
+                });
+            });
+        }
+
+        function carregarDadosDoBanco() {
+            if(!db) return;
+            const getAllRequest = db.transaction(["notas"], "readonly").objectStore("notas").getAll();
+            getAllRequest.onsuccess = function() {
+                todasNotasMemoria = getAllRequest.result.reverse();
+                processarEFiltrarDados();
+            };
+        }
+
+        function alternarAba(idAba) {
+            if(usuarioLogado && usuarioLogado.permissao === "RECEBIMENTO" && idAba === "aba-dashboard") return;
+            document.querySelectorAll('.aba-conteudo').forEach(aba => aba.classList.replace('block', 'hidden'));
+            document.getElementById(idAba).classList.replace('hidden', 'block');
+            
+            const btnDash = document.getElementById('btn-aba-dashboard');
+            const btnLanc = document.getElementById('btn-aba-lancamentos');
+            if(idAba === 'aba-dashboard') {
+                btnDash.className = "w-full flex items-center gap-3 px-4 py-3 bg-blue-600 rounded-xl text-white font-medium transition";
+                btnLanc.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition font-medium";
+            } else {
+                btnLanc.className = "w-full flex items-center gap-3 px-4 py-3 bg-blue-600 rounded-xl text-white font-medium transition";
+                btnDash.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition font-medium";
+            }
+        }
+
+        function formatarData(dStr) {
+            if(!dStr) return '-';
+            const p = dStr.split('-');
+            return `${p[2]}/${p[1]}/${p[0]}`;
+        }
+
+        function configurarNavegacaoTeclado() {
+            const campos = Array.from(document.querySelectorAll('.campo-rapido'));
+            campos.forEach((campo, index) => {
+                campo.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (index === campos.length - 1) { adicionarPedidoComprador(); } 
+                        else { campos[index + 1].focus(); }
+                    }
+                });
+            });
+        }
+
+        function adicionarPedidoComprador() {
+            const pedido = document.getElementById('pedido').value.trim();
+            const tipoBrita = document.getElementById('tipoBrita').value;
+            const qtdTotal = parseFloat(document.getElementById('qtdTotal').value) || 0;
+            const valPedido = document.getElementById('valPedido').value || '-';
+            const dataPgto = document.getElementById('dataPgto').value;
+            const dataEntrega = document.getElementById('dataEntrega').value;
+            const frete = document.getElementById('frete').value || '-';
+
+            if (!pedido || !qtdTotal) { alert("Preencha o Nº do Pedido e a Quantidade."); return; }
+
+            const novoRegistro = { 
+                pedido, tipoBrita, qtdTotal, valPedido, dataPgto, dataEntrega, frete,
+                fornecedor: '-', notaFiscal: '-', valNota: '-', pesoTon: 0, 
+                dataRecebimento: '', dataVencimentoBoleto: '', placa: '-', motorista: '-',
+                statusFluxo: "Aguardando Almox", vistoGerente: "Não", motivoReprovacao: ''
+            };
+
+            const transaction = db.transaction(["notas"], "readwrite");
+            let store = transaction.objectStore("notas");
+            
+            store.add(novoRegistro).onsuccess = function() {
+                mostrarToast();
+                if(document.getElementById('chkManterDados').checked) {
+                    document.getElementById('pedido').value = "";
+                    document.getElementById('pedido').focus();
+                } else {
+                    document.getElementById('formCompra').reset();
+                    localStorage.removeItem("rialma_campos_rapidos");
+                }
+            };
+
+            transaction.oncomplete = function() { carregarDadosDoBanco(); };
+        }
+
+        function abrirFormAlmoxarife(id, nrPedido, produto, qtd, valPed, frete) {
+            document.getElementById('moduloFormAlmoxarife').classList.remove('hidden');
+            document.getElementById('almoxIdRegistro').value = id;
+            
+            document.getElementById('lblAlmoxPedido').innerText = "#" + nrPedido;
+            document.getElementById('lblAlmoxProduto').innerText = produto;
+            document.getElementById('lblAlmoxQtd').innerText = qtd + " TN";
+            document.getElementById('lblAlmoxValPed').innerText = valPed;
+            document.getElementById('lblAlmoxFrete').innerText = frete;
+
+            document.getElementById('containerMotivoReprova').classList.add('hidden');
+            document.getElementById('motivoReprova').value = "";
+            document.getElementById('fornecedor').focus();
+        }
+
+        function cancelarPreenchimentoAlmox() {
+            document.getElementById('moduloFormAlmoxarife').classList.add('hidden');
+            document.getElementById('formAlmox').reset();
+        }
+
+        function processarFluxoAlmoxarife(decisao) {
+            const id = parseInt(document.getElementById('almoxIdRegistro').value);
+            const fornecedor = document.getElementById('fornecedor').value.trim();
+            const nf = document.getElementById('notaFiscal').value.trim();
+            const valNf = document.getElementById('valNota').value || '-';
+            const peso = parseFloat(document.getElementById('pesoTon').value) || 0;
+            const dtRec = document.getElementById('dataRecebimento').value;
+            const dtVenc = document.getElementById('dataVencimentoBoleto').value;
+            const placa = document.getElementById('placa').value.trim().toUpperCase();
+            const motorista = document.getElementById('motorista').value.trim();
+            const motivo = document.getElementById('motivoReprova').value.trim();
+
+            if (!fornecedor || !nf || !peso || !dtRec || !dtVenc || !placa || !motorista) {
+                alert("Por favor, preencha todos os campos obrigatórios do recebimento.");
+                return;
+            }
+
+            if (decisao === 'Reprovado' && !motivo) {
+                document.getElementById('containerMotivoReprova').classList.remove('hidden');
+                document.getElementById('motivoReprova').focus();
+                alert("Para reprovar, é obrigatório digitar o motivo da divergência.");
+                return;
+            }
+
+            const transaction = db.transaction(["notas"], "readwrite");
+            const store = transaction.objectStore("notas");
+            
+            store.get(id).onsuccess = function(e) {
+                const data = e.target.result;
+                data.fornecedor = fornecedor;
+                data.notaFiscal = nf;
+                data.valNota = valNf;
+                data.pesoTon = peso;
+                data.dataRecebimento = dtRec;
+                data.dataVencimentoBoleto = dtVenc;
+                data.placa = placa;
+                data.motorista = motorista;
+                
+                if (decisao === 'Aprovado') {
+                    data.statusFluxo = "Aguardando Gerente";
+                    data.motivoReprovacao = "";
+                } else {
+                    data.statusFluxo = "Reprovado pelo Almox";
+                    data.motivoReprovacao = motivo;
+                }
+                store.put(data);
+            };
+
+            transaction.oncomplete = function() {
+                mostrarToast();
+                cancelarPreenchimentoAlmox();
+                carregarDadosDoBanco();
+            };
+        }
+
+        function gerenciarAutorizacao(id, status) {
+            const transaction = db.transaction(["notas"], "readwrite");
+            const store = transaction.objectStore("notas");
+            
+            store.get(id).onsuccess = function(e) {
+                const data = e.target.result;
+                data.vistoGerente = status;
+                data.statusFluxo = (status === "Sim") ? "Autorizado / Concluído" : "Aguardando Gerente";
+                store.put(data);
+            };
+
+            transaction.oncomplete = function() {
+                mostrarToast();
+                carregarDadosDoBanco();
+            };
+        }
+
+        function excluirRegistro(id) {
+            if (confirm("Tem certeza que deseja excluir permanentemente este pedido do sistema?")) {
+                const transaction = db.transaction(["notas"], "readwrite");
+                const store = transaction.objectStore("notas");
+                store.delete(id).onsuccess = function() {
+                    mostrarToast();
+                };
+                transaction.oncomplete = function() {
+                    carregarDadosDoBanco();
+                };
+            }
+        }
+
+        function alternarTodosCheckboxes(masterCheckbox) {
+            const checkboxes = document.querySelectorAll('.select-nota');
+            checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+        }
+
+        function mostrarToast() {
+            const toast = document.getElementById('toastSucesso');
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 1500);
+        }
+
+        function mudarTermoPesquisa() {
+            termoPesquisa = document.getElementById('campoPesquisa').value.toLowerCase();
+            paginaAtual = 1;
+            renderizarTabelaPaginada();
+        }
+
+        function definirFiltroRapido(tipoFiltro) {
+            filtroSegmentado = tipoFiltro;
+            ['todos', 'pendAlmox', 'pendGerente'].forEach(b => {
+                const elemento = document.getElementById(`filtro-${b}`);
+                if(elemento) {
+                    elemento.className = b === tipoFiltro 
+                        ? "px-3 py-1.5 rounded-lg bg-white text-slate-800 shadow-sm transition" 
+                        : "px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 transition";
+                }
+            });
+            paginaAtual = 1;
+            renderizarTabelaPaginada();
+        }
+
+        function processarEFiltrarDados() {
+            let totalPeso = 0, pAlmox = 0;
+            let sumFinanceiroNF = 0, sumFretes = 0;
+            
+            const pesosPorBrita = { 'BRITA 1': 0, 'BRITA 2': 0, 'BRITA 3': 0, 'BRITA 4': 0 };
+            const qtdNotasPorBrita = { 'BRITA 1': 0, 'BRITA 2': 0, 'BRITA 3': 0, 'BRITA 4': 0 };
+            const volumesPorData = {};
+
+            todasNotasMemoria.forEach(nota => {
+                const pesoReal = parseFloat(nota.pesoTon) || 0;
+                totalPeso += pesoReal;
+                if (nota.statusFluxo === 'Aguardando Almox') pAlmox++;
+                
+                sumFinanceiroNF += converterMoedaParaFloat(nota.valNota);
+                sumFretes += converterMoedaParaFloat(nota.frete);
+
+                if (pesosPorBrita[nota.tipoBrita] !== undefined) {
+                    pesosPorBrita[nota.tipoBrita] += pesoReal;
+                    qtdNotasPorBrita[nota.tipoBrita] += 1;
+                }
+                if(nota.dataEntrega) { volumesPorData[nota.dataEntrega] = (volumesPorData[nota.dataEntrega] || 0) + pesoReal; }
+            });
+
+            document.getElementById('cardTotalNotas').innerText = todasNotasMemoria.length;
+            document.getElementById('cardTotalPeso').innerText = totalPeso.toFixed(2) + " TN";
+            
+            let formatOptions = { style: 'currency', currency: 'BRL' };
+            document.getElementById('cardTotalFinanceiro').innerText = sumFinanceiroNF.toLocaleString('pt-BR', formatOptions);
+            document.getElementById('cardTotalFretes').innerText = sumFretes.toLocaleString('pt-BR', formatOptions);
+            document.getElementById('cardPendenteAlmox').innerText = pAlmox;
+
+            if (usuarioLogado && usuarioLogado.permissao !== "RECEBIMENTO") {
+                if(grafico1) grafico1.destroy();
+                if(grafico2) grafico2.destroy();
+                if(grafico3) grafico3.destroy();
+
+                const ctx1 = document.getElementById('graficoMixBrita');
+                if(ctx1) {
+                    grafico1 = new Chart(ctx1.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Brita 1', 'Brita 2', 'Brita 3', 'Brita 4'],
+                            datasets: [{ data: [pesosPorBrita['BRITA 1'], pesosPorBrita['BRITA 2'], pesosPorBrita['BRITA 3'], pesosPorBrita['BRITA 4']], backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#f43f5e'] }]
+                        },
+                        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+                    });
+                }
+
+                const ctx2 = document.getElementById('graficoBarrasBrita');
+                if(ctx2) {
+                    grafico2 = new Chart(ctx2.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: ['Brita 1', 'Brita 2', 'Brita 3', 'Brita 4'],
+                            datasets: [{ data: [qtdNotasPorBrita['BRITA 1'], qtdNotasPorBrita['BRITA 2'], qtdNotasPorBrita['BRITA 3'], qtdNotasPorBrita['BRITA 4']], backgroundColor: '#6366f1', borderRadius: 4 }]
+                        },
+                        options: { responsive: true, plugins: { legend: { display: false } } }
+                    });
+                }
+
+                const ctx3 = document.getElementById('graficoLinhaTempo');
+                if(ctx3) {
+                    const datasOrdenadas = Object.keys(volumesPorData).sort();
+                    grafico3 = new Chart(ctx3.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: datasOrdenadas.map(d => `${d.split('-')[2]}/${d.split('-')[1]}`),
+                            datasets: [{ label: 'Toneladas', data: datasOrdenadas.map(d => volumesPorData[d]), borderColor: '#0284c7', backgroundColor: 'rgba(2, 132, 199, 0.05)', fill: true, tension: 0.2 }]
+                        },
+                        options: { responsive: true, plugins: { legend: { display: false } } }
+                    });
+                }
+            }
+
+            renderizarTabelaPaginada();
+        }
+
+        function converterMoedaParaFloat(str) {
+            if(!str || str === '-') return 0;
+            let limpo = str.replace(/[^\d,]/g, "").replace(",", ".");
+            return parseFloat(limpo) || 0;
+        }
+
+        function renderizarTabelaPaginada() {
+            const tabelaCorpo = document.getElementById('tabelaCorpo');
+            if(!tabelaCorpo) return;
+            
+            notesFiltradas = todasNotasMemoria.filter(nota => {
+                const p = nota.pedido.toLowerCase();
+                const nf = (nota.notaFiscal || "").toLowerCase();
+                const forn = (nota.fornecedor || "").toLowerCase();
+                const atendePesquisa = p.includes(termoPesquisa) || nf.includes(termoPesquisa) || forn.includes(termoPesquisa);
+                
+                if(!atendePesquisa) return false;
+                if(filtroSegmentado === 'pendAlmox') return nota.statusFluxo === 'Aguardando Almox';
+                if(filtroSegmentado === 'pendGerente') return nota.statusFluxo === 'Aguardando Gerente';
+                return true;
+            });
+
+            const totalRegistros = notesFiltradas.length;
+            const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina) || 1;
+            if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+
+            const inicio = (paginaAtual - 1) * registrosPorPagina;
+            const notasDaPagina = notesFiltradas.slice(inicio, inicio + registrosPorPagina);
+
+            tabelaCorpo.innerHTML = notasDaPagina.length === 0 ? `<tr><td colspan="16" class="p-4 text-center text-slate-400 italic">Nenhum registro localizado.</td></tr>` : "";
+
+            const ehAlmox = (usuarioLogado && usuarioLogado.permissao === "RECEBIMENTO");
+            const ehComprador = (usuarioLogado && usuarioLogado.permissao === "SUPRIMENTOS");
+            const ehGerente = (usuarioLogado && usuarioLogado.permissao === "MASTER");
+
+            notasDaPagina.forEach(nota => {
+                let badgeStatus = "";
+                if(nota.statusFluxo === "Aguardando Almox") {
+                    badgeStatus = `<span class="bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-0.5 rounded-full font-bold text-[10px]"><i class="fa-solid fa-clock animate-pulse"></i> Pendente</span>`;
+                } else if(nota.statusFluxo === "Reprovado pelo Almox") {
+                    badgeStatus = `<span title="${nota.motivoReprovacao}" class="bg-rose-100 text-rose-800 border border-rose-200 px-2.5 py-0.5 rounded-full font-bold text-[10px] cursor-help"><i class="fa-solid fa-triangle-exclamation"></i> Reprovado</span>`;
+                } else if(nota.statusFluxo === "Aguardando Gerente") {
+                    badgeStatus = `<span class="bg-blue-100 text-blue-800 border border-blue-200 px-2.5 py-0.5 rounded-full font-bold text-[10px]"><i class="fa-solid fa-user-tie"></i> Gerência</span>`;
+                } else {
+                    badgeStatus = `<span class="bg-emerald-100 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold text-[10px]"><i class="fa-solid fa-circle-check"></i> Finalizado</span>`;
+                }
+
+                const corGerente = nota.vistoGerente === 'Sim' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200';
+
+                const jaPassouPelaBalanca = (nota.statusFluxo !== "Aguardando Almox" && nota.statusFluxo !== "Reprovado pelo Almox");
+                const diferencaPeso = jaPassouPelaBalanca && (parseFloat(nota.qtdTotal) !== parseFloat(nota.pesoTon));
+                const diferencaFinanceira = jaPassouPelaBalanca && (converterMoedaParaFloat(nota.valPedido) !== converterMoedaParaFloat(nota.valNota));
+                const temDivergencia = diferencaPeso || diferencaFinanceira || nota.statusFluxo === "Reprovado pelo Almox";
+
+                const classeLinha = temDivergencia ? 'linha-divergente border-l-4 border-rose-500' : 'hover:bg-slate-50';
+
+                let acaoCelula = `<td class="p-2 text-center text-slate-400 font-medium">-</td>`;
+                let botaoLixeira = (ehComprador || ehGerente) ? `<button onclick="excluirRegistro(${nota.id})" class="text-rose-500 hover:text-rose-700 ml-2 p-1 text-[11px]" title="Excluir Registro Antigo/Errado"><i class="fa-solid fa-trash"></i></button>` : '';
+                
+                if(ehAlmox) {
+                    if(nota.statusFluxo === "Aguardando Almox") {
+                        acaoCelula = `<td class="p-2 text-center"><button onclick="abrirFormAlmoxarife(${nota.id}, '${nota.pedido}', '${nota.tipoBrita}', ${nota.qtdTotal}, '${nota.valPedido}', '${nota.frete}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-truck-pickup"></i> Confrontar</button></td>`;
+                    } else {
+                        acaoCelula = `<td class="p-2 text-center text-emerald-600 font-bold text-[11px]"><i class="fa-solid fa-square-check"></i> Concluído</td>`;
+                    }
+                } 
+                else if(ehGerente) {
+                    if(nota.statusFluxo === "Aguardando Gerente") {
+                        acaoCelula = `<td class="p-2 text-center flex items-center justify-center"><button onclick="gerenciarAutorizacao(${nota.id}, 'Sim')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] px-3 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-signature"></i> Autorizar</button>${botaoLixeira}</td>`;
+                    } else if(nota.statusFluxo === "Autorizado / Concluído") {
+                        acaoCelula = `<td class="p-2 text-center flex items-center justify-center"><button onclick="gerenciarAutorizacao(${nota.id}, 'Não')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] px-2 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-undo"></i> Revogar</button>${botaoLixeira}</td>`;
+                    } else {
+                        acaoCelula = `<td class="p-2 text-center flex items-center justify-center text-slate-400 font-medium">- ${botaoLixeira}</td>`;
+                    }
+                }
+                else if(ehComprador) {
+                    acaoCelula = `<td class="p-2 text-center flex items-center justify-center text-slate-400 font-medium">- ${botaoLixeira}</td>`;
+                }
+
+                tabelaCorpo.innerHTML += `
+                    <tr class="transition-colors ${classeLinha}">
+                        <td class="p-3 text-center">
+                            <input type="checkbox" data-id="${nota.id}" class="select-nota rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                        </td>
+                        <td class="p-3 font-semibold text-blue-600">#${nota.pedido}</td>
+                        <td class="p-3 font-medium text-slate-600 truncate max-w-[120px]" title="${nota.fornecedor}">${nota.fornecedor}</td>
+                        <td class="p-3 font-bold text-slate-700 text-[11px]">${nota.tipoBrita}</td>
+                        
+                        <td class="p-3 font-medium ${diferencaPeso ? 'text-rose-600 font-bold' : ''}">${nota.qtdTotal || '-'} TN</td>
+                        <td class="p-3 text-right font-medium">${nota.valPedido}</td>
+                        <td class="p-3 text-slate-400">${formatarData(nota.dataEntrega)}</td>
+                        
+                        <td class="p-3 font-mono font-bold text-slate-600">${nota.notaFiscal}</td>
+                        <td class="p-3 text-right font-bold ${diferencaFinanceira ? 'text-rose-700 font-black' : 'text-slate-900'}">${nota.valNota}</td>
+                        <td class="p-3 font-black ${diferencaPeso ? 'text-rose-700 font-black' : 'text-slate-900'}">${nota.pesoTon > 0 ? nota.pesoTon + ' TN' : '-'}</td>
+                        
+                        <td class="p-3 text-slate-500">${formatarData(nota.dataRecebimento)}</td>
+                        <td class="p-3 text-slate-500 font-semibold">${formatarData(nota.dataVencimentoBoleto)}</td>
+                        <td class="p-3 font-mono text-[11px]" title="Motorista: ${nota.motorista}">
+                            <span class="bg-slate-100 px-1 py-0.5 rounded font-bold border">${nota.placa}</span>
+                            <span class="text-slate-400 block text-[9px] truncate max-w-[80px]">${nota.motorista}</span>
+                        </td>
+                        
+                        <td class="p-3 text-center">${badgeStatus}</td>
+                        <td class="p-3 text-center"><span class="${corGerente} px-2 py-0.5 rounded text-[10px] font-bold">${nota.vistoGerente}</span></td>
+                        ${acaoCelula}
+                    </tr>`;
+            });
+
+            document.getElementById('infoPaginacao').innerText = totalRegistros > 0 
+                ? `Exibindo ${inicio + 1} até ${Math.min(inicio + registrosPorPagina, totalRegistros)} de ${totalRegistros}`
+                : `Exibindo 0 de 0 registros`;
+
+            document.getElementById('btnAnterior').disabled = (paginaAtual === 1);
+            document.getElementById('btnProximo').disabled = (paginaAtual === totalPaginas);
+        }
+
+        function paginaAnterior() { if (paginaAtual > 1) { paginaAtual--; renderizarTabelaPaginada(); } }
+        function proximaPagina() { if (paginaAtual < Math.ceil(notesFiltradas.length / registrosPorPagina)) { paginaAtual++; renderizarTabelaPaginada(); } }
+
+        function exportarParaPDF() {
+            const checkboxes = document.querySelectorAll('.select-nota:checked');
+            if (checkboxes.length === 0) {
+                alert("Marque as caixas de seleção na tabela para escolher quais registros exportar para o PDF!");
+                return;
+            }
+
+            const idsSelecionados = Array.from(checkboxes).map(cb => parseInt(cb.getAttribute('data-id')));
+            const dadosParaPdf = todasNotasMemoria.filter(nota => idsSelecionados.includes(nota.id));
+
+            let totalPesoSelecionado = 0;
+            let totalFinanceiroSelecionado = 0;
+
+            dadosParaPdf.forEach(n => {
+                totalPesoSelecionado += parseFloat(n.pesoTon) || 0;
+                totalFinanceiroSelecionado += converterMoedaParaFloat(n.valNota);
+            });
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4'); 
+
+            // Cores base do design corporativo
+            const corPrimaria = [15, 23, 42]; // Slate 900
+            const corSecundaria = [37, 99, 235]; // Blue 600
+            const corTexto = [51, 65, 85]; // Slate 700
+
+            // Header preenchido para maior elegância
+            doc.setFillColor(...corPrimaria);
+            doc.rect(0, 0, doc.internal.pageSize.getWidth(), 22, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            doc.text("RIALMA S.A - RELATÓRIO INTEGRAL DE MOVIMENTAÇÃO DE BRITAS", 14, 10);
+            
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            doc.text(`Filtro: Seleção Dinâmica | Emitido em: ${new Date().toLocaleString('pt-BR')} | Sistema ERP v7.5`, 14, 16);
+
+            // Tabela com colunas realinhadas (adicionado Valor NF)
+            const cabecalhos = [["Ped.", "Fornecedor", "Tipo", "Qtd Ped", "NF", "Valor NF", "Peso Real", "Dt Rec.", "Venc. Bol.", "Placa / Mot.", "Fluxo"]];
+            
+            const linhas = dadosParaPdf.map(n => [
+                `#${n.pedido}`,
+                n.fornecedor,
+                n.tipoBrita,
+                `${n.qtdTotal} TN`,
+                n.notaFiscal,
+                n.valNota,
+                n.pesoTon > 0 ? `${n.pesoTon} TN` : '-',
+                formatarData(n.dataRecebimento),
+                formatarData(n.dataVencimentoBoleto),
+                `${n.placa}\n${n.motorista}`,
+                n.statusFluxo
+            ]);
+
+            // Linha totalizadora no rodapé da tabela
+            linhas.push([
+                "TOTAL",
+                `${dadosParaPdf.length} item(ns)`,
+                "",
+                "",
+                "",
+                totalFinanceiroSelecionado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                `${totalPesoSelecionado.toFixed(2)} TN`,
+                "",
+                "",
+                "",
+                ""
+            ]);
+
+            doc.autoTable({
+                head: cabecalhos,
+                body: linhas,
+                startY: 28,
+                theme: 'striped',
+                headStyles: { fillColor: corSecundaria, textColor: 255, fontStyle: 'bold', halign: 'center' },
+                bodyStyles: { textColor: corTexto, fontSize: 8, valign: 'middle' },
+                alternateRowStyles: { fillColor: [248, 250, 252] },
+                columnStyles: {
+                    0: { fontStyle: 'bold', halign: 'center' },
+                    3: { halign: 'right' },
+                    5: { halign: 'right', fontStyle: 'bold' },
+                    6: { halign: 'right', fontStyle: 'bold' },
+                    7: { halign: 'center' },
+                    8: { halign: 'center' },
+                    9: { halign: 'center', fontSize: 7 },
+                    10: { halign: 'center' }
+                },
+                didParseCell: function(data) {
+                    if (data.row.index === linhas.length - 1) {
+                        data.cell.styles.fillColor = [226, 232, 240]; 
+                        data.cell.styles.fontStyle = 'bold';
+                        data.cell.styles.textColor = corPrimaria;
+                    }
+                    if (data.column.index === 10 && data.cell.raw === 'Reprovado pelo Almox') {
+                        data.cell.styles.textColor = [225, 29, 72];
+                        data.cell.styles.fontStyle = 'bold';
+                    }
+                },
+                didDrawPage: function(data) {
+                    const width = doc.internal.pageSize.getWidth();
+                    const height = doc.internal.pageSize.getHeight();
+                    
+                    doc.setFontSize(8);
+                    doc.setTextColor(148, 163, 184);
+                    doc.text(`Página ${data.pageNumber} de ${doc.internal.getNumberOfPages()}`, width - 14, height - 10, { align: 'right' });
+                }
+            });
+
+            // GERAÇÃO DO QUADRO RESUMO AGRUPADO POR TIPO DE MATERIAL
+            let resumoObj = {};
+            dadosParaPdf.forEach(n => {
+                if(!resumoObj[n.tipoBrita]) {
+                    resumoObj[n.tipoBrita] = { peso: 0, valor: 0 };
+                }
+                resumoObj[n.tipoBrita].peso += (parseFloat(n.pesoTon) || 0);
+                resumoObj[n.tipoBrita].valor += converterMoedaParaFloat(n.valNota);
+            });
+
+            const corpoResumo = Object.keys(resumoObj).map(tipo => [
+                tipo,
+                `${resumoObj[tipo].peso.toFixed(2)} TN`,
+                resumoObj[tipo].valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+            ]);
+
+            let finalY = doc.lastAutoTable.finalY || 30;
+            
+            // Controle anti-quebra (se o espaço restante for muito pequeno, cria nova página)
+            if (finalY > doc.internal.pageSize.getHeight() - 45) {
+                doc.addPage();
+                finalY = 15;
+            }
+
+            if(corpoResumo.length > 0) {
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(10);
+                doc.setTextColor(...corPrimaria);
+                doc.text("QUADRO RESUMO POR TIPO DE BRITA (ITENS SELECIONADOS)", 14, finalY + 12);
+                
+                doc.autoTable({
+                    startY: finalY + 16,
+                    head: [['Tipo de Material / Brita', 'Peso Real Total (TN)', 'Valor Total da NF']],
+                    body: corpoResumo,
+                    theme: 'grid',
+                    tableWidth: 160,
+                    headStyles: { fillColor: [16, 185, 129], textHexColor: '#ffffff', halign: 'center' },
+                    bodyStyles: { textColor: corTexto, fontSize: 8 },
+                    columnStyles: {
+                        1: { halign: 'right', fontStyle: 'bold' },
+                        2: { halign: 'right', fontStyle: 'bold' }
+                    }
+                });
+            }
+            
+            let ultimaY = doc.lastAutoTable.finalY || finalY;
+            if (ultimaY > doc.internal.pageSize.getHeight() - 35) {
+                doc.addPage();
+                ultimaY = 20;
+            }
+
+            const width = doc.internal.pageSize.getWidth();
+            doc.setDrawColor(148, 163, 184);
+            doc.setLineWidth(0.5);
+            doc.line(width / 2 - 45, ultimaY + 25, width / 2 + 45, ultimaY + 25);
+            
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9);
+            doc.text("Assinatura Gerente de Compras", width / 2, ultimaY + 30, { align: "center" });
+
+            doc.save(`RIALMA_Relatorio_Confronto_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        function exportarParaExcel() {
+            if(todasNotasMemoria.length === 0) return;
+            let csv = "﻿Pedido;Fornecedor;Tipo Brita;Qtd Pedido;Nota Fiscal;Peso Real;Data Recebimento;Vencimento Boleto;Placa;Motorista;Status\n";
+            todasNotasMemoria.forEach(n => { csv += `${n.pedido};${n.fornecedor};${n.tipoBrita};${n.qtdTotal};${n.notaFiscal};${n.pesoTon};${n.dataRecebimento};${n.dataVencimentoBoleto};${n.placa};${n.motorista};${n.statusFluxo}\n`; });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", `RIALMA_Exportacao_Geral_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function limparBanco() {
+            if(!usuarioLogado || usuarioLogado.permissao !== "MASTER") return;
+            if(confirm("Deseja expurgar permanentemente todos os registros do sistema?")) {
+                db.transaction(["notas"], "readwrite").objectStore("notas").clear().onsuccess = function() { carregarDadosDoBanco(); };
+            }
+        }
+
+        function fazerBackup() {
+            if (!db) { alert("Banco de dados não conectado!"); return; }
+            const transaction = db.transaction(["notas"], "readonly");
+            const store = transaction.objectStore("notas");
+            const getAllRequest = store.getAll();
+            
+            getAllRequest.onsuccess = function() {
+                const dadosStr = JSON.stringify(getAllRequest.result, null, 2);
+                const blob = new Blob([dadosStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup_rialma_erp_db_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                mostrarToast();
+            };
+        }
+    </script>
+</body>
+</html>
