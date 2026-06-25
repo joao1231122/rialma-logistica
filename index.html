@@ -1,1 +1,33 @@
-index.html      
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>RIALMA S.A - ERP Corporativo Enterprise v7.5</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEvAUvccNi6GBiHcrUc0tAe0A6083qmNo",
+            authDomain: "rialmabritas.firebaseapp.com",
+            databaseURL: "https://rialmabritas-default-rtdb.firebaseio.com",
+            projectId: "rialmabritas",
+            storageBucket: "rialmabritas.firebasestorage.app",
+            messagingSenderId: "561149441126",
+            appId: "1:561149441126:web:d3717be661d172b6c7a9a7",
+            measurementId: "G-YJPQ2LSYMW"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        window.db = db; // Disponível globalmente
+        window.ref = ref;
+        window.set = set;
+        window.onValue = onValue;
+        window.remove = remove;
+    </script>
+    </head>
+<body>
+    </body>
+</html>  
