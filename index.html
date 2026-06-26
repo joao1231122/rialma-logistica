@@ -3,14 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RIALMA S.A - ERP Corporativo Enterprise v7.5</title>
-    <!-- Tailwind CSS -->
+    <title>RIALMA S.A - ERP Corporativo Enterprise v7.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js para Gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- jsPDF para relatórios em PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
@@ -21,7 +17,6 @@
 </head>
 <body class="bg-slate-50 font-sans flex h-screen overflow-hidden text-slate-800">
 
-    <!-- ================= TELA DE LOGIN ================= -->
     <div id="tela-login" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4 select-none">
         <div class="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl border border-slate-200">
             <div class="flex items-center gap-3 mb-6 justify-center">
@@ -41,7 +36,7 @@
             <form id="formLogin" onsubmit="executarLogin(event)" class="space-y-4" autocomplete="off">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Usuário</label>
-                    <input type="text" id="loginUsuario" autocomplete="off" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-medium text-slate-700" placeholder="gerente, comprador ou almox" required>
+                    <input type="text" id="loginUsuario" autocomplete="off" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-medium text-slate-700" placeholder="Ex: gerente, comprador, almox.jaiba..." required>
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Senha</label>
@@ -59,7 +54,6 @@
         </div>
     </div>
 
-    <!-- ================= MENU LATERAL ================= -->
     <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between hidden md:flex border-r border-slate-800 select-none">
         <div>
             <div class="p-6 border-b border-slate-800 flex items-center justify-between">
@@ -67,7 +61,7 @@
                     <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-500/20">R</div>
                     <div class="flex flex-col">
                         <span class="text-sm font-bold tracking-wider text-slate-100">RIALMA S.A</span>
-                        <span class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">Logística v7.5</span>
+                        <span class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">Logística v7.6</span>
                     </div>
                 </div>
             </div>
@@ -95,15 +89,13 @@
             </button>
             <div class="flex items-center justify-between text-[10px] text-slate-500">
                 <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-emerald-500"></i> RBAC Ativo</span>
-                <span>v7.5</span>
+                <span>v7.6</span>
             </div>
         </div>
     </aside>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 flex flex-col overflow-y-auto">
         
-        <!-- ================= DASHBOARD ================= -->
         <div id="aba-dashboard" class="aba-conteudo block">
             <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 border-b border-slate-200">
                 <h1 class="text-lg font-bold text-slate-800">Indicadores de Recebimento de Britas</h1>
@@ -113,7 +105,6 @@
             </header>
 
             <div class="p-6 space-y-6">
-                <!-- CARDS DE MÉTRICAS -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
                         <div>
@@ -124,8 +115,8 @@
                     </div>
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
                         <div>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Peso Real Entregue</p>
-                            <h3 id="cardTotalPeso" class="text-xl font-black text-slate-800 mt-1">0.00 TN</h3>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Volume Real Entregue</p>
+                            <h3 id="cardTotalPeso" class="text-xl font-black text-slate-800 mt-1">0.00</h3>
                         </div>
                         <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center text-lg"><i class="fa-solid fa-weight-hanging"></i></div>
                     </div>
@@ -152,10 +143,9 @@
                     </div>
                 </div>
 
-                <!-- GRÁFICOS -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                        <h3 class="text-xs font-bold text-slate-500 mb-4 uppercase tracking-wider">Mix de Distribuição por Tipo (TN)</h3>
+                        <h3 class="text-xs font-bold text-slate-500 mb-4 uppercase tracking-wider">Mix de Distribuição por Tipo</h3>
                         <div class="relative max-h-[220px] flex justify-center"><canvas id="graficoMixBrita"></canvas></div>
                     </div>
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
@@ -163,14 +153,13 @@
                         <div class="relative max-h-[220px]"><canvas id="graficoBarrasBrita"></canvas></div>
                     </div>
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                        <h3 class="text-xs font-bold text-slate-500 mb-4 uppercase tracking-wider">Recebimentos no Período (TN / Dia)</h3>
+                        <h3 class="text-xs font-bold text-slate-500 mb-4 uppercase tracking-wider">Recebimentos no Período</h3>
                         <div class="relative max-h-[220px]"><canvas id="graficoLinhaTempo"></canvas></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= LANÇAMENTOS E AUTORIZAÇÕES ================= -->
         <div id="aba-lancamentos" class="aba-conteudo hidden">
             <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 border-b border-slate-200">
                 <h1 class="text-lg font-bold text-slate-800" id="tituloPainelPrincipal">Fluxo Operacional Integrado</h1>
@@ -186,10 +175,17 @@
 
             <div class="p-6 space-y-4">
                 
-                <!-- FORMULÁRIO COMPRADOR -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hidden" id="moduloFormComprador">
                     <h2 class="text-xs font-black uppercase text-blue-600 tracking-wider mb-4"><i class="fa-solid fa-cart-plus"></i> Inserir Novo Pedido de Compra</h2>
                     <form id="formCompra" onsubmit="event.preventDefault(); adicionarPedidoComprador();" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Destino (Obra/Almox)</label>
+                            <select id="almoxDestino" onchange="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-blue-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none font-bold text-blue-800">
+                                <option value="JAIBA">JAIBA</option>
+                                <option value="CHIQUINHO">CHIQUINHO</option>
+                                <option value="S. JOAO DA PONTE">S. JOÃO DA PONTE</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nº Pedido</label>
                             <input type="text" id="pedido" oninput="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none font-semibold text-slate-800" required>
@@ -204,8 +200,14 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Qtd Pedido (TN)</label>
-                            <input type="number" step="0.01" id="qtdTotal" oninput="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none" required>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Qtd e Unidade</label>
+                            <div class="flex gap-2">
+                                <input type="number" step="0.01" id="qtdTotal" oninput="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none" required placeholder="0.00">
+                                <select id="unidadeMedida" onchange="salvarEstadoCamposModoRapido()" class="w-24 p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none font-bold text-slate-700">
+                                    <option value="TN" selected>TN</option>
+                                    <option value="M³">M³</option>
+                                </select>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Valor do Pedido</label>
@@ -223,15 +225,14 @@
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Valor do Frete</label>
                             <input type="text" id="frete" placeholder="R$ 0,00" oninput="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido input-moeda outline-none font-medium" required>
                         </div>
-                        <div>
-                            <button type="submit" class="w-full h-[38px] bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-md transition mt-5 flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-paper-plane"></i> Lançar e Enviar p/ Almoxarifado
+                        <div class="lg:col-span-4 mt-2">
+                            <button type="submit" class="w-full h-[38px] bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i> Lançar e Enviar p/ Almoxarifado Selecionado
                             </button>
                         </div>
                     </form>
                 </div>
 
-                <!-- FORMULÁRIO CONFRONTO ALMOXARIFE -->
                 <div class="bg-white p-6 rounded-xl shadow-md border border-emerald-300 hidden bg-emerald-50/5" id="moduloFormAlmoxarife">
                     <div class="flex items-center justify-between mb-4 border-b pb-2">
                         <h2 class="text-xs font-black uppercase text-emerald-700 tracking-wider flex items-center gap-2">
@@ -240,16 +241,15 @@
                         <button onclick="cancelarPreenchimentoAlmox()" class="text-xs text-slate-400 hover:text-slate-600 font-bold"><i class="fa-solid fa-xmark"></i> Cancelar</button>
                     </div>
 
-                    <!-- ESPELHO DOS DADOS DO COMPRADOR -->
-                    <div class="mb-5 p-4 bg-slate-900 text-slate-100 rounded-xl grid grid-cols-2 md:grid-cols-5 gap-4 text-xs select-none">
+                    <div class="mb-5 p-4 bg-slate-900 text-slate-100 rounded-xl grid grid-cols-2 md:grid-cols-5 gap-4 text-xs select-none relative">
+                        <span id="lblAlmoxDestinoInfo" class="absolute -top-3 right-4 bg-emerald-500 text-white font-bold text-[9px] px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm border border-emerald-400">DESTINO</span>
                         <div><p class="text-slate-400 text-[10px] font-bold uppercase">Pedido do Comprador</p><p class="text-base font-black text-blue-400" id="lblAlmoxPedido">#--</p></div>
                         <div><p class="text-slate-400 text-[10px] font-bold uppercase">Produto Solicitado</p><p class="font-bold text-white" id="lblAlmoxProduto">--</p></div>
-                        <div><p class="text-slate-400 text-[10px] font-bold uppercase">Peso Solicitado</p><p class="font-bold text-amber-400" id="lblAlmoxQtd">0 TN</p></div>
+                        <div><p class="text-slate-400 text-[10px] font-bold uppercase">Qtd Solicitada</p><p class="font-bold text-amber-400" id="lblAlmoxQtd">0 TN</p></div>
                         <div><p class="text-slate-400 text-[10px] font-bold uppercase">Valor do Pedido</p><p class="font-bold text-emerald-400" id="lblAlmoxValPed">R$ 0,00</p></div>
                         <div><p class="text-slate-400 text-[10px] font-bold uppercase">Valor do Frete</p><p class="font-bold text-indigo-400" id="lblAlmoxFrete">R$ 0,00</p></div>
                     </div>
 
-                    <!-- FORMULÁRIO DE ENTRADA DO ALMOXARIFE -->
                     <form id="formAlmox" onsubmit="event.preventDefault();" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <input type="hidden" id="almoxIdRegistro">
                         
@@ -266,8 +266,14 @@
                             <input type="text" id="valNota" placeholder="R$ 0,00" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-bold focus:ring-2 focus:ring-emerald-500/20 input-moeda outline-none" required>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Peso Recebido Real (TN)</label>
-                            <input type="number" step="0.01" id="pesoTon" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-black focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                            <label id="lblInputRecebido" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Qtd Recebida Real e Unidade</label>
+                            <div class="flex gap-2">
+                                <input type="number" step="0.01" id="pesoTon" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-black focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                                <select id="unidadeMedidaAlmox" class="w-24 p-2 border border-slate-200 rounded-lg text-sm bg-white font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500/20 outline-none">
+                                    <option value="TN">TN</option>
+                                    <option value="M³">M³</option>
+                                </select>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data do Recebimento</label>
@@ -286,13 +292,11 @@
                             <input type="text" id="motorista" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-semibold focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
                         </div>
 
-                        <!-- MOTIVO DE REPROVAÇÃO (OCULTO POR PADRÃO) -->
                         <div id="containerMotivoReprova" class="hidden lg:col-span-4 bg-rose-50 p-3 rounded-lg border border-rose-200">
                             <label class="block text-[10px] font-bold text-rose-700 uppercase tracking-wider mb-1">Descreva o Motivo da Reprovação / Divergência</label>
                             <input type="text" id="motivoReprova" class="w-full p-2 border border-rose-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/20 bg-white" placeholder="Ex: Carga veio com peso abaixo do tolerado / Produto danificado...">
                         </div>
 
-                        <!-- BOTÕES DE DECISÃO -->
                         <div class="lg:col-span-4 flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100">
                             <button type="button" onclick="processarFluxoAlmoxarife('Reprovado')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-6 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
                                 <i class="fa-solid fa-circle-xmark"></i> Reprovar Recebimento
@@ -304,7 +308,6 @@
                     </form>
                 </div>
 
-                <!-- FILTROS AVANÇADOS -->
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                     <div class="flex flex-wrap items-center gap-3">
                         <div class="relative w-full sm:w-64">
@@ -321,34 +324,32 @@
 
                     <div class="flex items-center justify-end gap-2" id="acoesControleMaster">
                         <button onclick="fazerBackup()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition flex items-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-cloud-arrow-down"></i> Fazer Backup (Segurança)
+                            <i class="fa-solid fa-cloud-arrow-down"></i> Fazer Backup
                         </button>
                         <button onclick="exportarParaPDF()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition flex items-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-file-pdf"></i> Exportar Selecionados para PDF
+                            <i class="fa-solid fa-file-pdf"></i> Exportar Selecionados PDF
                         </button>
-                        <button onclick="exportarParaExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition flex items-center gap-2"><i class="fa-solid fa-file-excel"></i> Exportar (CSV)</button>
+                        <button onclick="exportarParaExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition flex items-center gap-2"><i class="fa-solid fa-file-excel"></i> CSV</button>
                         <button onclick="limparBanco()" id="btnLimparTudo" class="text-xs text-rose-500 hover:text-rose-700 font-semibold px-3 py-2 transition hidden"><i class="fa-solid fa-trash-can"></i> Expurgar Registros</button>
                     </div>
                 </div>
 
-                <!-- GRID DE STATUS UNIFICADO -->
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-500 uppercase font-bold tracking-wider border-b border-slate-200 whitespace-nowrap text-[10px]">
                                     <th class="p-3 w-10 text-center"><input type="checkbox" id="chkSelecionarTodos" onchange="alternarTodosCheckboxes(this)" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500"></th>
+                                    <th class="p-3">Destino</th>
                                     <th class="p-3">Pedido</th>
                                     <th class="p-3">Fornecedor</th>
                                     <th class="p-3">Tipo Brita</th>
                                     <th class="p-3">Qtd Pedido</th>
                                     <th class="p-3">Val. Pedido</th>
-                                    <th class="p-3">Previsão Entr.</th>
                                     <th class="p-3 font-semibold">NF</th>
                                     <th class="p-3">Val. NF</th>
-                                    <th class="p-3">Peso Real (TN)</th>
+                                    <th class="p-3">Qtd Real Entregue</th>
                                     <th class="p-3">Dt Rec.</th>
-                                    <th class="p-3">Venc. Bol.</th>
                                     <th class="p-3">Placa / Mot.</th>
                                     <th class="p-3 text-center">Status de Fluxo</th>
                                     <th class="p-3 text-center">Autorização</th>
@@ -371,7 +372,6 @@
         </div>
     </main>
 
-    <!-- CORE SYSTEM ENGINE & FIREBASE MODULE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getDatabase, ref, set, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
@@ -404,13 +404,20 @@
             verificarSessao();
         };
 
+        function decodificarUsuarioLogado(u) {
+            if (u === "gerente") return { nome: "GERENTE DE COMPRAS", cargo: "GERENTE", permissao: "MASTER", unidade: "TODAS" };
+            if (u === "comprador") return { nome: "COMPRADOR SUPL.", cargo: "COMPRADOR", permissao: "SUPRIMENTOS", unidade: "TODAS" };
+            if (u === "almox.jaiba") return { nome: "ALMOX. JAIBA", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO", unidade: "JAIBA" };
+            if (u === "almox.chiquinho") return { nome: "ALMOX. CHIQUINHO", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO", unidade: "CHIQUINHO" };
+            if (u === "almox.sjoao") return { nome: "ALMOX. S. JOÃO", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO", unidade: "S. JOAO DA PONTE" };
+            return null;
+        }
+
         function verificarSessao() {
             const cache = sessionStorage.getItem("rialma_secure_session");
             if (cache) {
                 const u = cache.trim().toLowerCase();
-                if (u === "gerente") usuarioLogado = { nome: "GERENTE DE COMPRAS", cargo: "GERENTE", permissao: "MASTER" };
-                else if (u === "comprador") usuarioLogado = { nome: "COMPRADOR SUPL.", cargo: "COMPRADOR", permissao: "SUPRIMENTOS" };
-                else if (u === "almox") usuarioLogado = { nome: "ALMOXARIFADO CENTRAL", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO" };
+                usuarioLogado = decodificarUsuarioLogado(u);
                 
                 if(usuarioLogado) {
                     document.getElementById("tela-login").classList.add("hidden");
@@ -439,12 +446,16 @@
             const u = document.getElementById("loginUsuario").value.trim().toLowerCase();
             const s = document.getElementById("loginSenha").value.trim().toLowerCase();
 
+            // Lógica simples de autenticação
             let autentico = false;
-            if (u === "gerente" && s === "gerente") { autentico = true; usuarioLogado = { nome: "GERENTE DE COMPRAS", cargo: "GERENTE", permissao: "MASTER" }; }
-            else if (u === "comprador" && s === "comprador") { autentico = true; usuarioLogado = { nome: "COMPRADOR SUPL.", cargo: "COMPRADOR", permissao: "SUPRIMENTOS" }; }
-            else if (u === "almox" && s === "almox") { autentico = true; usuarioLogado = { nome: "ALMOXARIFADO CENTRAL", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO" }; }
+            if (u === "gerente" && s === "gerente") autentico = true;
+            else if (u === "comprador" && s === "comprador") autentico = true;
+            else if (u === "almox.jaiba" && s === "almox.jaiba") autentico = true;
+            else if (u === "almox.chiquinho" && s === "almox.chiquinho") autentico = true;
+            else if (u === "almox.sjoao" && s === "almox.sjoao") autentico = true;
 
             if (autentico) {
+                usuarioLogado = decodificarUsuarioLogado(u);
                 sessionStorage.setItem("rialma_secure_session", u);
                 document.getElementById("erro-login").classList.add("hidden");
                 document.getElementById("tela-login").classList.add("hidden");
@@ -478,7 +489,7 @@
 
             if (usuarioLogado.permissao === "RECEBIMENTO") {
                 document.getElementById("btn-aba-dashboard").classList.add("hidden");
-                document.getElementById("tituloPainelPrincipal").innerText = "Painel de Entrada de Materiais";
+                document.getElementById("tituloPainelPrincipal").innerText = `Painel de Entrada - ${usuarioLogado.unidade}`;
                 alternarAba("aba-lancamentos");
             } 
             else if (usuarioLogado.permissao === "MASTER") {
@@ -506,9 +517,11 @@
         window.salvarEstadoCamposModoRapido = function() {
             if(!document.getElementById("chkManterDados") || !document.getElementById("chkManterDados").checked) return;
             const dados = {
+                almoxDestino: document.getElementById('almoxDestino').value,
                 pedido: document.getElementById('pedido').value,
                 tipoBrita: document.getElementById('tipoBrita').value,
                 qtdTotal: document.getElementById('qtdTotal').value,
+                unidadeMedida: document.getElementById('unidadeMedida').value,
                 valPedido: document.getElementById('valPedido').value,
                 dataPgto: document.getElementById('dataPgto').value,
                 dataEntrega: document.getElementById('dataEntrega').value,
@@ -526,9 +539,11 @@
                 const dadosSalvos = localStorage.getItem("rialma_campos_rapidos");
                 if(dadosSalvos) {
                     const dados = JSON.parse(dadosSalvos);
+                    document.getElementById('almoxDestino').value = dados.almoxDestino || "JAIBA";
                     document.getElementById('pedido').value = dados.pedido || "";
                     document.getElementById('tipoBrita').value = dados.tipoBrita || "BRITA 1";
                     document.getElementById('qtdTotal').value = dados.qtdTotal || "";
+                    document.getElementById('unidadeMedida').value = dados.unidadeMedida || "TN";
                     document.getElementById('valPedido').value = dados.valPedido || "";
                     document.getElementById('dataPgto').value = dados.dataPgto || "";
                     document.getElementById('dataEntrega').value = dados.dataEntrega || "";
@@ -583,6 +598,7 @@
         function formatarData(dStr) {
             if(!dStr) return '-';
             const p = dStr.split('-');
+            if(p.length !== 3) return dStr;
             return `${p[2]}/${p[1]}/${p[0]}`;
         }
 
@@ -600,9 +616,11 @@
         }
 
         window.adicionarPedidoComprador = function() {
+            const almoxDestino = document.getElementById('almoxDestino').value;
             const pedido = document.getElementById('pedido').value.trim();
             const tipoBrita = document.getElementById('tipoBrita').value;
             const qtdTotal = parseFloat(document.getElementById('qtdTotal').value) || 0;
+            const unidadeMedida = document.getElementById('unidadeMedida').value;
             const valPedido = document.getElementById('valPedido').value || '-';
             const dataPgto = document.getElementById('dataPgto').value;
             const dataEntrega = document.getElementById('dataEntrega').value;
@@ -611,8 +629,9 @@
             if (!pedido || !qtdTotal) { alert("Preencha o Nº do Pedido e a Quantidade."); return; }
 
             const novoRegistro = { 
-                pedido, tipoBrita, qtdTotal, valPedido, dataPgto, dataEntrega, frete,
-                fornecedor: '-', notaFiscal: '-', valNota: '-', pesoTon: 0, 
+                almoxarifadoDestino: almoxDestino,
+                pedido, tipoBrita, qtdTotal, unidadeMedida, valPedido, dataPgto, dataEntrega, frete,
+                fornecedor: '-', notaFiscal: '-', valNota: '-', pesoTon: 0, unidadeMedidaAlmox: '',
                 dataRecebimento: '', dataVencimentoBoleto: '', placa: '-', motorista: '-',
                 statusFluxo: "Aguardando Almox", vistoGerente: "Não", motivoReprovacao: ''
             };
@@ -630,15 +649,19 @@
             }).catch(error => console.error("Erro ao inserir:", error));
         };
 
-        window.abrirFormAlmoxarife = function(id, nrPedido, produto, qtd, valPed, frete) {
+        window.abrirFormAlmoxarife = function(id, nrPedido, produto, qtd, unidade, valPed, frete, destinoInfo) {
             document.getElementById('moduloFormAlmoxarife').classList.remove('hidden');
             document.getElementById('almoxIdRegistro').value = id;
             
+            document.getElementById('lblAlmoxDestinoInfo').innerText = destinoInfo;
             document.getElementById('lblAlmoxPedido').innerText = "#" + nrPedido;
             document.getElementById('lblAlmoxProduto').innerText = produto;
-            document.getElementById('lblAlmoxQtd').innerText = qtd + " TN";
+            document.getElementById('lblAlmoxQtd').innerText = qtd + " " + unidade;
             document.getElementById('lblAlmoxValPed').innerText = valPed;
             document.getElementById('lblAlmoxFrete').innerText = frete;
+            
+            // Preenche automaticamente a unidade com a selecionada pelo comprador
+            document.getElementById('unidadeMedidaAlmox').value = unidade;
 
             document.getElementById('containerMotivoReprova').classList.add('hidden');
             document.getElementById('motivoReprova').value = "";
@@ -651,11 +674,12 @@
         };
 
         window.processarFluxoAlmoxarife = function(decisao) {
-            const id = document.getElementById('almoxIdRegistro').value; // Agora é uma string (ID do Firebase)
+            const id = document.getElementById('almoxIdRegistro').value; 
             const fornecedor = document.getElementById('fornecedor').value.trim();
             const nf = document.getElementById('notaFiscal').value.trim();
             const valNf = document.getElementById('valNota').value || '-';
             const peso = parseFloat(document.getElementById('pesoTon').value) || 0;
+            const undAlmox = document.getElementById('unidadeMedidaAlmox').value; // Unidade escolhida no recebimento
             const dtRec = document.getElementById('dataRecebimento').value;
             const dtVenc = document.getElementById('dataVencimentoBoleto').value;
             const placa = document.getElementById('placa').value.trim().toUpperCase();
@@ -680,6 +704,7 @@
                 notaFiscal: nf,
                 valNota: valNf,
                 pesoTon: peso,
+                unidadeMedidaAlmox: undAlmox,
                 dataRecebimento: dtRec,
                 dataVencimentoBoleto: dtVenc,
                 placa: placa,
@@ -751,6 +776,8 @@
             const volumesPorData = {};
 
             todasNotasMemoria.forEach(nota => {
+                if(usuarioLogado && usuarioLogado.permissao === "RECEBIMENTO" && nota.almoxarifadoDestino !== usuarioLogado.unidade) return;
+
                 const pesoReal = parseFloat(nota.pesoTon) || 0;
                 totalPeso += pesoReal;
                 if (nota.statusFluxo === 'Aguardando Almox') pAlmox++;
@@ -765,8 +792,8 @@
                 if(nota.dataEntrega) { volumesPorData[nota.dataEntrega] = (volumesPorData[nota.dataEntrega] || 0) + pesoReal; }
             });
 
-            document.getElementById('cardTotalNotas').innerText = todasNotasMemoria.length;
-            document.getElementById('cardTotalPeso').innerText = totalPeso.toFixed(2) + " TN";
+            document.getElementById('cardTotalNotas').innerText = document.getElementById('graficoMixBrita') ? Object.values(qtdNotasPorBrita).reduce((a,b)=>a+b,0) : todasNotasMemoria.length;
+            document.getElementById('cardTotalPeso').innerText = totalPeso.toFixed(2) + " (Vol.)";
             
             let formatOptions = { style: 'currency', currency: 'BRL' };
             document.getElementById('cardTotalFinanceiro').innerText = sumFinanceiroNF.toLocaleString('pt-BR', formatOptions);
@@ -809,7 +836,7 @@
                         type: 'line',
                         data: {
                             labels: datasOrdenadas.map(d => `${d.split('-')[2]}/${d.split('-')[1]}`),
-                            datasets: [{ label: 'Toneladas', data: datasOrdenadas.map(d => volumesPorData[d]), borderColor: '#0284c7', backgroundColor: 'rgba(2, 132, 199, 0.05)', fill: true, tension: 0.2 }]
+                            datasets: [{ label: 'Volume (TN/M³)', data: datasOrdenadas.map(d => volumesPorData[d]), borderColor: '#0284c7', backgroundColor: 'rgba(2, 132, 199, 0.05)', fill: true, tension: 0.2 }]
                         },
                         options: { responsive: true, plugins: { legend: { display: false } } }
                     });
@@ -830,6 +857,10 @@
             if(!tabelaCorpo) return;
             
             notesFiltradas = todasNotasMemoria.filter(nota => {
+                if (usuarioLogado && usuarioLogado.permissao === "RECEBIMENTO" && nota.almoxarifadoDestino !== usuarioLogado.unidade) {
+                    return false;
+                }
+
                 const p = nota.pedido.toLowerCase();
                 const nf = (nota.notaFiscal || "").toLowerCase();
                 const forn = (nota.fornecedor || "").toLowerCase();
@@ -848,14 +879,18 @@
             const inicio = (paginaAtual - 1) * registrosPorPagina;
             const notasDaPagina = notesFiltradas.slice(inicio, inicio + registrosPorPagina);
 
-            tabelaCorpo.innerHTML = notasDaPagina.length === 0 ? `<tr><td colspan="16" class="p-4 text-center text-slate-400 italic">Nenhum registro localizado.</td></tr>` : "";
+            tabelaCorpo.innerHTML = notasDaPagina.length === 0 ? `<tr><td colspan="15" class="p-4 text-center text-slate-400 italic">Nenhum registro localizado.</td></tr>` : "";
 
             const ehAlmox = (usuarioLogado && usuarioLogado.permissao === "RECEBIMENTO");
             const ehComprador = (usuarioLogado && usuarioLogado.permissao === "SUPRIMENTOS");
             const ehGerente = (usuarioLogado && usuarioLogado.permissao === "MASTER");
 
             notasDaPagina.forEach(nota => {
+                const unidade = nota.unidadeMedida || 'TN';
+                const unidadeReal = nota.unidadeMedidaAlmox || unidade; // Unidade validada pelo almoxarife
+
                 let badgeStatus = "";
+                
                 if(nota.statusFluxo === "Aguardando Almox") {
                     badgeStatus = `<span class="bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-0.5 rounded-full font-bold text-[10px]"><i class="fa-solid fa-clock animate-pulse"></i> Pendente</span>`;
                 } else if(nota.statusFluxo === "Reprovado pelo Almox") {
@@ -869,18 +904,20 @@
                 const corGerente = nota.vistoGerente === 'Sim' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200';
 
                 const jaPassouPelaBalanca = (nota.statusFluxo !== "Aguardando Almox" && nota.statusFluxo !== "Reprovado pelo Almox");
-                const diferencaPeso = jaPassouPelaBalanca && (parseFloat(nota.qtdTotal) !== parseFloat(nota.pesoTon));
+                const diferencaPeso = jaPassouPelaBalanca && (parseFloat(nota.qtdTotal) !== parseFloat(nota.pesoTon) || unidade !== unidadeReal);
                 const diferencaFinanceira = jaPassouPelaBalanca && (converterMoedaParaFloat(nota.valPedido) !== converterMoedaParaFloat(nota.valNota));
                 const temDivergencia = diferencaPeso || diferencaFinanceira || nota.statusFluxo === "Reprovado pelo Almox";
 
                 const classeLinha = temDivergencia ? 'linha-divergente border-l-4 border-rose-500' : 'hover:bg-slate-50';
+                
+                const destinoCor = nota.almoxarifadoDestino === "JAIBA" ? "text-emerald-600 bg-emerald-50" : (nota.almoxarifadoDestino === "CHIQUINHO" ? "text-blue-600 bg-blue-50" : "text-purple-600 bg-purple-50");
 
                 let acaoCelula = `<td class="p-2 text-center text-slate-400 font-medium">-</td>`;
                 let botaoLixeira = (ehComprador || ehGerente) ? `<button onclick="excluirRegistro('${nota.id}')" class="text-rose-500 hover:text-rose-700 ml-2 p-1 text-[11px]" title="Excluir Registro Antigo/Errado"><i class="fa-solid fa-trash"></i></button>` : '';
                 
                 if(ehAlmox) {
                     if(nota.statusFluxo === "Aguardando Almox") {
-                        acaoCelula = `<td class="p-2 text-center"><button onclick="abrirFormAlmoxarife('${nota.id}', '${nota.pedido}', '${nota.tipoBrita}', ${nota.qtdTotal}, '${nota.valPedido}', '${nota.frete}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-truck-pickup"></i> Confrontar</button></td>`;
+                        acaoCelula = `<td class="p-2 text-center"><button onclick="abrirFormAlmoxarife('${nota.id}', '${nota.pedido}', '${nota.tipoBrita}', ${nota.qtdTotal}, '${unidade}', '${nota.valPedido}', '${nota.frete}', '${nota.almoxarifadoDestino}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-truck-pickup"></i> Confrontar</button></td>`;
                     } else {
                         acaoCelula = `<td class="p-2 text-center text-emerald-600 font-bold text-[11px]"><i class="fa-solid fa-square-check"></i> Concluído</td>`;
                     }
@@ -903,20 +940,19 @@
                         <td class="p-3 text-center">
                             <input type="checkbox" data-id="${nota.id}" class="select-nota rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                         </td>
+                        <td class="p-3 font-bold text-[9px]"><span class="px-2 py-1 rounded-full border ${destinoCor}">${nota.almoxarifadoDestino || "N/A"}</span></td>
                         <td class="p-3 font-semibold text-blue-600">#${nota.pedido}</td>
                         <td class="p-3 font-medium text-slate-600 truncate max-w-[120px]" title="${nota.fornecedor}">${nota.fornecedor}</td>
                         <td class="p-3 font-bold text-slate-700 text-[11px]">${nota.tipoBrita}</td>
                         
-                        <td class="p-3 font-medium ${diferencaPeso ? 'text-rose-600 font-bold' : ''}">${nota.qtdTotal || '-'} TN</td>
+                        <td class="p-3 font-medium ${diferencaPeso ? 'text-rose-600 font-bold' : ''}">${nota.qtdTotal || '-'} ${unidade}</td>
                         <td class="p-3 text-right font-medium">${nota.valPedido}</td>
-                        <td class="p-3 text-slate-400">${formatarData(nota.dataEntrega)}</td>
                         
                         <td class="p-3 font-mono font-bold text-slate-600">${nota.notaFiscal}</td>
                         <td class="p-3 text-right font-bold ${diferencaFinanceira ? 'text-rose-700 font-black' : 'text-slate-900'}">${nota.valNota}</td>
-                        <td class="p-3 font-black ${diferencaPeso ? 'text-rose-700 font-black' : 'text-slate-900'}">${nota.pesoTon > 0 ? nota.pesoTon + ' TN' : '-'}</td>
+                        <td class="p-3 font-black ${diferencaPeso ? 'text-rose-700 font-black' : 'text-slate-900'}">${nota.pesoTon > 0 ? nota.pesoTon + ' ' + unidadeReal : '-'}</td>
                         
                         <td class="p-3 text-slate-500">${formatarData(nota.dataRecebimento)}</td>
-                        <td class="p-3 text-slate-500 font-semibold">${formatarData(nota.dataVencimentoBoleto)}</td>
                         <td class="p-3 font-mono text-[11px]" title="Motorista: ${nota.motorista}">
                             <span class="bg-slate-100 px-1 py-0.5 rounded font-bold border">${nota.placa}</span>
                             <span class="text-slate-400 block text-[9px] truncate max-w-[80px]">${nota.motorista}</span>
@@ -949,12 +985,11 @@
             const idsSelecionados = Array.from(checkboxes).map(cb => cb.getAttribute('data-id'));
             const dadosParaPdf = todasNotasMemoria.filter(nota => idsSelecionados.includes(nota.id));
 
-            let totalPesoSelecionado = 0;
-            let totalFinanceiroSelecionado = 0;
-
+            const notasAgrupadas = {};
             dadosParaPdf.forEach(n => {
-                totalPesoSelecionado += parseFloat(n.pesoTon) || 0;
-                totalFinanceiroSelecionado += converterMoedaParaFloat(n.valNota);
+                const obra = n.almoxarifadoDestino || "NÃO DEFINIDO";
+                if (!notasAgrupadas[obra]) notasAgrupadas[obra] = [];
+                notasAgrupadas[obra].push(n);
             });
 
             const { jsPDF } = window.jspdf;
@@ -974,76 +1009,91 @@
             
             doc.setFont("helvetica", "normal");
             doc.setFontSize(9);
-            doc.text(`Filtro: Seleção Dinâmica | Emitido em: ${new Date().toLocaleString('pt-BR')} | Sistema ERP v7.5`, 14, 16);
+            doc.text(`Filtro: Seleção Dinâmica | Emitido em: ${new Date().toLocaleString('pt-BR')} | Sistema ERP v7.6`, 14, 16);
 
-            const cabecalhos = [["Ped.", "Fornecedor", "Tipo", "Qtd Ped", "NF", "Valor NF", "Peso Real", "Dt Rec.", "Venc. Bol.", "Placa / Mot.", "Fluxo"]];
-            
-            const linhas = dadosParaPdf.map(n => [
-                `#${n.pedido}`,
-                n.fornecedor,
-                n.tipoBrita,
-                `${n.qtdTotal} TN`,
-                n.notaFiscal,
-                n.valNota,
-                n.pesoTon > 0 ? `${n.pesoTon} TN` : '-',
-                formatarData(n.dataRecebimento),
-                formatarData(n.dataVencimentoBoleto),
-                `${n.placa}\n${n.motorista}`,
-                n.statusFluxo
-            ]);
+            let currentY = 28;
+            let totalGeralPeso = 0;
+            let totalGeralFinanceiro = 0;
 
-            linhas.push([
-                "TOTAL",
-                `${dadosParaPdf.length} item(ns)`,
-                "",
-                "",
-                "",
-                totalFinanceiroSelecionado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-                `${totalPesoSelecionado.toFixed(2)} TN`,
-                "",
-                "",
-                "",
-                ""
-            ]);
+            const cabecalhos = [["Ped.", "Fornecedor", "Tipo", "Qtd Ped", "NF", "Valor NF", "Qtd Real", "Dt Rec.", "Placa / Mot.", "Fluxo"]];
 
-            doc.autoTable({
-                head: cabecalhos,
-                body: linhas,
-                startY: 28,
-                theme: 'striped',
-                headStyles: { fillColor: corSecundaria, textColor: 255, fontStyle: 'bold', halign: 'center' },
-                bodyStyles: { textColor: corTexto, fontSize: 8, valign: 'middle' },
-                alternateRowStyles: { fillColor: [248, 250, 252] },
-                columnStyles: {
-                    0: { fontStyle: 'bold', halign: 'center' },
-                    3: { halign: 'right' },
-                    5: { halign: 'right', fontStyle: 'bold' },
-                    6: { halign: 'right', fontStyle: 'bold' },
-                    7: { halign: 'center' },
-                    8: { halign: 'center' },
-                    9: { halign: 'center', fontSize: 7 },
-                    10: { halign: 'center' }
-                },
-                didParseCell: function(data) {
-                    if (data.row.index === linhas.length - 1) {
-                        data.cell.styles.fillColor = [226, 232, 240]; 
-                        data.cell.styles.fontStyle = 'bold';
-                        data.cell.styles.textColor = corPrimaria;
-                    }
-                    if (data.column.index === 10 && data.cell.raw === 'Reprovado pelo Almox') {
-                        data.cell.styles.textColor = [225, 29, 72];
-                        data.cell.styles.fontStyle = 'bold';
-                    }
-                },
-                didDrawPage: function(data) {
-                    const width = doc.internal.pageSize.getWidth();
-                    const height = doc.internal.pageSize.getHeight();
+            for (const [obra, notasObra] of Object.entries(notasAgrupadas)) {
+                if (currentY > doc.internal.pageSize.getHeight() - 40) { doc.addPage(); currentY = 20; }
+                
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(11);
+                doc.setTextColor(...corPrimaria);
+                doc.text(`DESTINO / ALMOXARIFADO: ${obra.toUpperCase()}`, 14, currentY);
+                
+                let subtotalPeso = 0;
+                let subtotalFinan = 0;
+
+                const linhasObra = notasObra.map(n => {
+                    const pesoReal = parseFloat(n.pesoTon) || 0;
+                    const valorReal = converterMoedaParaFloat(n.valNota);
+                    const unidade = n.unidadeMedida || 'TN';
+                    const unidadeReal = n.unidadeMedidaAlmox || unidade; // Ajuste nova regra
                     
-                    doc.setFontSize(8);
-                    doc.setTextColor(148, 163, 184);
-                    doc.text(`Página ${data.pageNumber} de ${doc.internal.getNumberOfPages()}`, width - 14, height - 10, { align: 'right' });
-                }
-            });
+                    subtotalPeso += pesoReal;
+                    subtotalFinan += valorReal;
+                    totalGeralPeso += pesoReal;
+                    totalGeralFinanceiro += valorReal;
+
+                    return [
+                        `#${n.pedido}`,
+                        n.fornecedor,
+                        n.tipoBrita,
+                        `${n.qtdTotal} ${unidade}`,
+                        n.notaFiscal,
+                        n.valNota,
+                        n.pesoTon > 0 ? `${n.pesoTon} ${unidadeReal}` : '-',
+                        formatarData(n.dataRecebimento),
+                        `${n.placa}\n${n.motorista}`,
+                        n.statusFluxo
+                    ];
+                });
+
+                linhasObra.push([
+                    "SUBTOTAL",
+                    `${notasObra.length} item(ns)`,
+                    "", "", "",
+                    subtotalFinan.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                    `${subtotalPeso.toFixed(2)} Vol.`,
+                    "", "", ""
+                ]);
+
+                doc.autoTable({
+                    head: cabecalhos,
+                    body: linhasObra,
+                    startY: currentY + 4,
+                    theme: 'striped',
+                    headStyles: { fillColor: corSecundaria, textColor: 255, fontStyle: 'bold', halign: 'center' },
+                    bodyStyles: { textColor: corTexto, fontSize: 8, valign: 'middle' },
+                    alternateRowStyles: { fillColor: [248, 250, 252] },
+                    columnStyles: {
+                        0: { fontStyle: 'bold', halign: 'center' },
+                        3: { halign: 'right' },
+                        5: { halign: 'right', fontStyle: 'bold' },
+                        6: { halign: 'right', fontStyle: 'bold' },
+                        7: { halign: 'center' },
+                        8: { halign: 'center', fontSize: 7 },
+                        9: { halign: 'center' }
+                    },
+                    didParseCell: function(data) {
+                        if (data.row.index === linhasObra.length - 1) {
+                            data.cell.styles.fillColor = [226, 232, 240]; 
+                            data.cell.styles.fontStyle = 'bold';
+                            data.cell.styles.textColor = corPrimaria;
+                        }
+                        if (data.column.index === 9 && data.cell.raw === 'Reprovado pelo Almox') {
+                            data.cell.styles.textColor = [225, 29, 72];
+                            data.cell.styles.fontStyle = 'bold';
+                        }
+                    }
+                });
+                
+                currentY = doc.lastAutoTable.finalY + 15;
+            }
 
             let resumoObj = {};
             dadosParaPdf.forEach(n => {
@@ -1056,26 +1106,24 @@
 
             const corpoResumo = Object.keys(resumoObj).map(tipo => [
                 tipo,
-                `${resumoObj[tipo].peso.toFixed(2)} TN`,
+                `${resumoObj[tipo].peso.toFixed(2)} Vol.`,
                 resumoObj[tipo].valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
             ]);
 
-            let finalY = doc.lastAutoTable.finalY || 30;
-            
-            if (finalY > doc.internal.pageSize.getHeight() - 45) {
+            if (currentY > doc.internal.pageSize.getHeight() - 60) {
                 doc.addPage();
-                finalY = 15;
+                currentY = 20;
             }
 
             if(corpoResumo.length > 0) {
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(10);
                 doc.setTextColor(...corPrimaria);
-                doc.text("QUADRO RESUMO POR TIPO DE BRITA (ITENS SELECIONADOS)", 14, finalY + 12);
+                doc.text("QUADRO RESUMO GERAL POR TIPO DE BRITA (TODAS AS OBRAS)", 14, currentY);
                 
                 doc.autoTable({
-                    startY: finalY + 16,
-                    head: [['Tipo de Material / Brita', 'Peso Real Total (TN)', 'Valor Total da NF']],
+                    startY: currentY + 4,
+                    head: [['Tipo de Material / Brita', 'Volume Real Total', 'Valor Total da NF']],
                     body: corpoResumo,
                     theme: 'grid',
                     tableWidth: 160,
@@ -1088,7 +1136,7 @@
                 });
             }
             
-            let ultimaY = doc.lastAutoTable.finalY || finalY;
+            let ultimaY = doc.lastAutoTable.finalY || currentY;
             if (ultimaY > doc.internal.pageSize.getHeight() - 35) {
                 doc.addPage();
                 ultimaY = 20;
@@ -1103,13 +1151,25 @@
             doc.setFontSize(9);
             doc.text("Assinatura Gerente de Compras", width / 2, ultimaY + 30, { align: "center" });
 
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(148, 163, 184);
+                doc.text(`Página ${i} de ${pageCount}`, width - 14, doc.internal.pageSize.getHeight() - 10, { align: 'right' });
+            }
+
             doc.save(`RIALMA_Relatorio_Confronto_${new Date().toISOString().slice(0,10)}.pdf`);
         };
 
         window.exportarParaExcel = function() {
             if(todasNotasMemoria.length === 0) return;
-            let csv = "﻿Pedido;Fornecedor;Tipo Brita;Qtd Pedido;Nota Fiscal;Peso Real;Data Recebimento;Vencimento Boleto;Placa;Motorista;Status\n";
-            todasNotasMemoria.forEach(n => { csv += `${n.pedido};${n.fornecedor};${n.tipoBrita};${n.qtdTotal};${n.notaFiscal};${n.pesoTon};${n.dataRecebimento};${n.dataVencimentoBoleto};${n.placa};${n.motorista};${n.statusFluxo}\n`; });
+            let csv = "\uFEFFDestino;Pedido;Fornecedor;Tipo Brita;Qtd Pedido;Nota Fiscal;Qtd Real;Data Recebimento;Vencimento Boleto;Placa;Motorista;Status\n";
+            todasNotasMemoria.forEach(n => { 
+                const u = n.unidadeMedida || 'TN';
+                const uReal = n.unidadeMedidaAlmox || u; // Ajuste nova regra
+                csv += `${n.almoxarifadoDestino || "N/A"};${n.pedido};${n.fornecedor};${n.tipoBrita};${n.qtdTotal} ${u};${n.notaFiscal};${n.pesoTon > 0 ? n.pesoTon + ' ' + uReal : '-'};${n.dataRecebimento};${n.dataVencimentoBoleto};${n.placa};${n.motorista};${n.statusFluxo}\n`; 
+            });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.setAttribute("href", URL.createObjectURL(blob));
