@@ -1015,7 +1015,7 @@
             let totalGeralPeso = 0;
             let totalGeralFinanceiro = 0;
 
-            const cabecalhos = [["Ped.", "Fornecedor", "Tipo", "Qtd Ped", "NF", "Valor NF", "Qtd Real", "Dt Rec.", "Placa / Mot.", "Fluxo"]];
+            const cabecalhos = [["Ped.", "Fornecedor", "Tipo", "Qtd Ped", "NF", "Valor NF", "Qtd Real", "Dt Rec.", "Placa / Mot.", "Fluxo", "Validações (Almox/Dir)"]];
 
             for (const [obra, notasObra] of Object.entries(notasAgrupadas)) {
                 if (currentY > doc.internal.pageSize.getHeight() - 40) { doc.addPage(); currentY = 20; }
@@ -1032,12 +1032,19 @@
                     const pesoReal = parseFloat(n.pesoTon) || 0;
                     const valorReal = converterMoedaParaFloat(n.valNota);
                     const unidade = n.unidadeMedida || 'TN';
-                    const unidadeReal = n.unidadeMedidaAlmox || unidade; // Ajuste nova regra
+                    const unidadeReal = n.unidadeMedidaAlmox || unidade; 
                     
                     subtotalPeso += pesoReal;
                     subtotalFinan += valorReal;
                     totalGeralPeso += pesoReal;
                     totalGeralFinanceiro += valorReal;
+
+                    let textoValidacoes = "";
+                    if (n.statusFluxo === "Aguardando Gerente" || n.statusFluxo === "Autorizado / Concluído") {
+                        textoValidacoes = "Almox: OK\n\nDir: _______________";
+                    } else {
+                        textoValidacoes = "Almox: Pendente\n\nDir: _______________";
+                    }
 
                     return [
                         `#${n.pedido}`,
@@ -1049,7 +1056,8 @@
                         n.pesoTon > 0 ? `${n.pesoTon} ${unidadeReal}` : '-',
                         formatarData(n.dataRecebimento),
                         `${n.placa}\n${n.motorista}`,
-                        n.statusFluxo
+                        n.statusFluxo,
+                        textoValidacoes 
                     ];
                 });
 
@@ -1059,7 +1067,7 @@
                     "", "", "",
                     subtotalFinan.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
                     `${subtotalPeso.toFixed(2)} Vol.`,
-                    "", "", ""
+                    "", "", "", "" 
                 ]);
 
                 doc.autoTable({
@@ -1077,7 +1085,8 @@
                         6: { halign: 'right', fontStyle: 'bold' },
                         7: { halign: 'center' },
                         8: { halign: 'center', fontSize: 7 },
-                        9: { halign: 'center' }
+                        9: { halign: 'center' },
+                        10: { halign: 'left', fontStyle: 'bold', fontSize: 7 } 
                     },
                     didParseCell: function(data) {
                         if (data.row.index === linhasObra.length - 1) {
