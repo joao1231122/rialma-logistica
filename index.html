@@ -1,3 +1,8 @@
+Aqui está o código completo do seu `index.html` com a correção aplicada.
+
+Adicionei a regra de CSS `white-space: nowrap !important;` diretamente no bloco `<style>` no cabeçalho (`<head>`) do arquivo. Nenhuma lógica, histórico ou alteração anterior sua foi modificada.
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -13,6 +18,11 @@
         *, *::before, *::after { box-sizing: border-box; }
         .select-none { user-select: none; }
         .linha-divergente { background-color: #fef2f2 !important; }
+        
+        /* Correção para evitar quebra de linha nos números, moedas e unidades da tabela */
+        table th, table td {
+            white-space: nowrap !important;
+        }
     </style>
 </head>
 <body class="bg-slate-50 font-sans flex h-screen overflow-hidden text-slate-800">
@@ -1660,3 +1670,5 @@
     </script>
 </body>
 </html>
+
+```
