@@ -411,7 +411,6 @@
             </div>
         </div>
 
-        <!-- Central de Usuários -->
         <div id="aba-usuarios" class="aba-conteudo hidden">
             <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 border-b border-slate-200">
                 <h1 class="text-lg font-bold text-slate-800">Central de Gestão de Autenticação</h1>
@@ -466,7 +465,6 @@
             </div>
         </div>
 
-        <!-- Cadastro de Motoristas -->
         <div id="aba-motoristas" class="aba-conteudo hidden">
             <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 border-b border-slate-200">
                 <h1 class="text-lg font-bold text-slate-800">Cadastro de Motoristas e Condutores</h1>
@@ -817,7 +815,6 @@
         // LÓGICA DE MOTORISTAS E FRETE
         window.tratarCampoValorFob = function(origem) {
             if(origem === 'comprador') {
-                // Comprador usa o campo frete atual
                 const tf = document.getElementById('tipoFreteComprador').value;
                 if(tf === 'CIF') { document.getElementById('frete').value = 'R$ 0,00'; }
             } else {
@@ -879,17 +876,26 @@
             const idEdicao = document.getElementById('inputIdEdicaoComprador').value;
 
             if (idEdicao) {
-                const atual = todasNotasMemoria.find(n => n.id === idEdicao);
+                const atual = todasNotasMemoria.find(n => n.id === idEdicao) || {};
                 update(ref(db, 'notas/' + idEdicao), {
                     ...dadosRegistro,
-                    fornecedor: atual.fornecedor, notaFiscal: atual.notaFiscal, valNota: atual.valNota,
-                    pesoTon: atual.pesoTon, unidadeMedidaAlmox: atual.unidadeMedidaAlmox,
-                    dataRecebimento: atual.dataRecebimento, dataVencimentoBoleto: atual.dataVencimentoBoleto,
-                    valorFreteFob: atual.valorFreteFob, statusFluxo: atual.statusFluxo, 
-                    vistoGerente: atual.vistoGerente, motivoReprovacao: atual.motivoReprovacao
+                    fornecedor: atual.fornecedor ?? '-', 
+                    notaFiscal: atual.notaFiscal ?? '-', 
+                    valNota: atual.valNota ?? '-',
+                    pesoTon: atual.pesoTon ?? 0, 
+                    unidadeMedidaAlmox: atual.unidadeMedidaAlmox ?? '',
+                    dataRecebimento: atual.dataRecebimento ?? '', 
+                    dataVencimentoBoleto: atual.dataVencimentoBoleto ?? '',
+                    valorFreteFob: atual.valorFreteFob ?? '-', 
+                    statusFluxo: atual.statusFluxo ?? "Aguardando Almox", 
+                    vistoGerente: atual.vistoGerente ?? "Não", 
+                    motivoReprovacao: atual.motivoReprovacao ?? ''
                 }).then(() => {
                     mostrarToast();
                     cancelarEdicaoComprador();
+                }).catch(error => {
+                    console.error("Erro ao atualizar:", error);
+                    alert("Erro ao atualizar registro. Verifique a conexão.");
                 });
             } else {
                 push(ref(db, 'notas'), dadosRegistro).then(() => {
@@ -918,25 +924,25 @@
             document.getElementById('lblAlmoxValPed').innerText = valPed;
             document.getElementById('lblAlmoxFrete').innerText = frete;
             
-            document.getElementById('unidadeMedidaAlmox').value = unidade;
+            document.getElementById('unidadeMedidaAlmox').value = unidade || 'TN';
 
             const notaAtual = todasNotasMemoria.find(n => n.id === id);
-            document.getElementById('statusOrigemAlmox').value = notaAtual.statusFluxo;
+            document.getElementById('statusOrigemAlmox').value = notaAtual.statusFluxo || '';
 
             if (notaAtual.fornecedor && notaAtual.fornecedor !== '-') {
-                document.getElementById('fornecedor').value = notaAtual.fornecedor;
-                document.getElementById('notaFiscal').value = notaAtual.notaFiscal;
-                document.getElementById('valNota').value = notaAtual.valNota;
-                document.getElementById('pesoTon').value = notaAtual.pesoTon;
-                document.getElementById('dataRecebimento').value = notaAtual.dataRecebimento;
-                document.getElementById('dataVencimentoBoleto').value = notaAtual.dataVencimentoBoleto;
-                document.getElementById('placa').value = notaAtual.placa !== '-' ? notaAtual.placa : '';
-                document.getElementById('motorista').value = notaAtual.motorista !== '-' ? notaAtual.motorista : '';
+                document.getElementById('fornecedor').value = notaAtual.fornecedor || '';
+                document.getElementById('notaFiscal').value = notaAtual.notaFiscal || '';
+                document.getElementById('valNota').value = notaAtual.valNota || '';
+                document.getElementById('pesoTon').value = notaAtual.pesoTon || '';
+                document.getElementById('dataRecebimento').value = notaAtual.dataRecebimento || '';
+                document.getElementById('dataVencimentoBoleto').value = notaAtual.dataVencimentoBoleto || '';
+                document.getElementById('placa').value = notaAtual.placa !== '-' ? (notaAtual.placa || '') : '';
+                document.getElementById('motorista').value = notaAtual.motorista !== '-' ? (notaAtual.motorista || '') : '';
                 document.getElementById('tipoFreteAlmox').value = notaAtual.tipoFrete || 'CIF';
-                document.getElementById('valorFreteFobAlmox').value = notaAtual.valorFreteFob !== '-' ? notaAtual.valorFreteFob : 'R$ 0,00';
+                document.getElementById('valorFreteFobAlmox').value = notaAtual.valorFreteFob !== '-' ? (notaAtual.valorFreteFob || 'R$ 0,00') : 'R$ 0,00';
             } else {
-                document.getElementById('placa').value = notaAtual.placa !== '-' ? notaAtual.placa : '';
-                document.getElementById('motorista').value = notaAtual.motorista !== '-' ? notaAtual.motorista : '';
+                document.getElementById('placa').value = notaAtual.placa !== '-' ? (notaAtual.placa || '') : '';
+                document.getElementById('motorista').value = notaAtual.motorista !== '-' ? (notaAtual.motorista || '') : '';
                 document.getElementById('tipoFreteAlmox').value = notaAtual.tipoFrete || 'CIF';
                 document.getElementById('valorFreteFobAlmox').value = 'R$ 0,00';
             }
@@ -967,25 +973,25 @@
 
             if (usuarioLogado.permissao === "SUPRIMENTOS") {
                 document.getElementById('inputIdEdicaoComprador').value = id;
-                document.getElementById('almoxDestino').value = nota.almoxarifadoDestino;
-                document.getElementById('pedido').value = nota.pedido;
-                document.getElementById('tipoBrita').value = nota.tipoBrita;
-                document.getElementById('qtdTotal').value = nota.qtdTotal;
-                document.getElementById('unidadeMedida').value = nota.unidadeMedida;
-                document.getElementById('valPedido').value = nota.valPedido;
-                document.getElementById('dataPgto').value = nota.dataPgto;
-                document.getElementById('dataEntrega').value = nota.dataEntrega;
-                document.getElementById('placaComprador').value = nota.placa !== '-' ? nota.placa : '';
-                document.getElementById('motoristaComprador').value = nota.motorista !== '-' ? nota.motorista : '';
+                document.getElementById('almoxDestino').value = nota.almoxarifadoDestino || "JAIBA";
+                document.getElementById('pedido').value = nota.pedido || "";
+                document.getElementById('tipoBrita').value = nota.tipoBrita || "BRITA 1";
+                document.getElementById('qtdTotal').value = nota.qtdTotal || "";
+                document.getElementById('unidadeMedida').value = nota.unidadeMedida || "TN";
+                document.getElementById('valPedido').value = nota.valPedido || "";
+                document.getElementById('dataPgto').value = nota.dataPgto || "";
+                document.getElementById('dataEntrega').value = nota.dataEntrega || "";
+                document.getElementById('placaComprador').value = (nota.placa && nota.placa !== '-') ? nota.placa : '';
+                document.getElementById('motoristaComprador').value = (nota.motorista && nota.motorista !== '-') ? nota.motorista : '';
                 document.getElementById('tipoFreteComprador').value = nota.tipoFrete || '';
-                document.getElementById('frete').value = nota.frete;
+                document.getElementById('frete').value = nota.frete || "";
 
                 document.getElementById('btnCancelarEdicaoComprador').classList.remove('hidden');
                 document.getElementById('btnSubmitComprador').innerHTML = `<i class="fa-solid fa-save"></i> Salvar Alterações no Pedido`;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } 
             else if (usuarioLogado.permissao === "RECEBIMENTO") {
-                abrirFormAlmoxarife(id, nota.pedido, nota.tipoBrita, nota.qtdTotal, nota.unidadeMedida, nota.valPedido, nota.frete, nota.almoxarifadoDestino);
+                abrirFormAlmoxarife(id, nota.pedido || '', nota.tipoBrita || '', nota.qtdTotal || 0, nota.unidadeMedida || 'TN', nota.valPedido || '', nota.frete || '', nota.almoxarifadoDestino || '');
             }
         };
 
@@ -1017,10 +1023,9 @@
                 return;
             }
 
-            // Se for só edição, não muda o status caso já esteja em Gerência
             let novoStatus = decisao === 'Aprovado' ? "Aguardando Gerente" : "Reprovado pelo Almox";
             if(statusOrigem === "Aguardando Gerente" || statusOrigem === "Autorizado / Concluído") {
-                novoStatus = statusOrigem; // Mantém status na edição
+                novoStatus = statusOrigem; 
             }
 
             const notaRef = ref(db, 'notas/' + id);
@@ -1033,7 +1038,10 @@
             }).then(() => {
                 mostrarToast();
                 window.cancelarPreenchimentoAlmox();
-            }).catch(error => console.error("Erro ao atualizar:", error));
+            }).catch(error => {
+                console.error("Erro ao atualizar:", error);
+                alert("Erro ao atualizar registro. Verifique a conexão.");
+            });
         };
 
         // ... MÉTODOS CRUD MOTORISTAS ...
@@ -1058,10 +1066,11 @@
             const m = motoristasMemoria.find(x => x.id === id);
             if(m) {
                 document.getElementById('cadMotId').value = m.id;
-                document.getElementById('cadMotPlaca').value = m.placa;
-                document.getElementById('cadMotNome').value = m.nome;
-                document.getElementById('cadMotFrete').value = m.tipoFrete;
+                document.getElementById('cadMotPlaca').value = m.placa || '';
+                document.getElementById('cadMotNome').value = m.nome || '';
+                document.getElementById('cadMotFrete').value = m.tipoFrete || '';
                 document.getElementById('btnSalvarMot').innerText = "Atualizar Motorista";
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         };
         window.excluirMotorista = function(id) {
@@ -1106,11 +1115,12 @@
             const u = usuariosMemoria.find(x => x.id === id);
             if(u) {
                 document.getElementById('cadUsuId').value = u.id;
-                document.getElementById('cadUsuLogin').value = u.login;
-                document.getElementById('cadUsuSenha').value = u.senha;
-                document.getElementById('cadUsuNome').value = u.nome;
-                document.getElementById('cadUsuNivel').value = u.nivel;
+                document.getElementById('cadUsuLogin').value = u.login || '';
+                document.getElementById('cadUsuSenha').value = u.senha || '';
+                document.getElementById('cadUsuNome').value = u.nome || '';
+                document.getElementById('cadUsuNivel').value = u.nivel || '';
                 document.getElementById('btnSalvarUsu').innerText = "Atualizar Usuário";
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         };
         window.excluirUsuario = function(id) {
@@ -1198,7 +1208,7 @@
                 if (nota.statusFluxo === 'Aguardando Almox') pAlmox++;
                 
                 sumFinanceiroNF += converterMoedaParaFloat(nota.valNota);
-                sumFretes += converterMoedaParaFloat(nota.frete); // Considera frete do comprador pro dashboard
+                sumFretes += converterMoedaParaFloat(nota.frete);
 
                 if (pesosPorBrita[nota.tipoBrita] !== undefined) {
                     pesosPorBrita[nota.tipoBrita] += pesoReal;
@@ -1504,10 +1514,11 @@
                     columnStyles: {
                         0: { fontStyle: 'bold', halign: 'center' },
                         3: { halign: 'right' },
+                        4: { halign: 'center', minCellWidth: 18 }, // FIX: Impede que a NF quebre a linha
                         5: { halign: 'right', fontStyle: 'bold' },
                         7: { halign: 'right', fontStyle: 'bold' },
                         8: { halign: 'right', fontStyle: 'bold' },
-                        9: { halign: 'center' },
+                        9: { halign: 'center', minCellWidth: 16 }, // FIX: Impede que a data quebre
                         10: { halign: 'center', fontSize: 7 },
                         11: { halign: 'center' },
                         12: { halign: 'left', fontStyle: 'bold', fontSize: 7 } 
