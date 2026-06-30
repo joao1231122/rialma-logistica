@@ -47,8 +47,8 @@
                         </button>
                     </div>
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2.5 rounded-xl transition shadow-lg shadow-blue-600/10 mt-2">
-                    Autenticar no Sistema
+                <button type="submit" id="btnAcesso" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2.5 rounded-xl transition shadow-lg shadow-blue-600/10 mt-2 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> Autenticar no Sistema
                 </button>
             </form>
         </div>
@@ -81,6 +81,12 @@
                 <button onclick="alternarAba('aba-lancamentos')" id="btn-aba-lancamentos" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition font-medium">
                     <i class="fa-solid fa-receipt w-5"></i> Fluxo de Lançamentos
                 </button>
+                <button onclick="alternarAba('aba-motoristas')" id="btn-aba-motoristas" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition font-medium hidden">
+                    <i class="fa-solid fa-id-card w-5"></i> Cadastro de Motoristas
+                </button>
+                <button onclick="alternarAba('aba-usuarios')" id="btn-aba-usuarios" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition font-medium hidden">
+                    <i class="fa-solid fa-users w-5"></i> Central de Logins
+                </button>
             </nav>
         </div>
         <div class="p-4 border-t border-slate-800 space-y-3">
@@ -94,7 +100,7 @@
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col overflow-y-auto">
+    <main class="flex-1 flex flex-col overflow-y-auto relative">
         
         <div id="aba-dashboard" class="aba-conteudo block">
             <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 border-b border-slate-200">
@@ -175,9 +181,13 @@
 
             <div class="p-6 space-y-4">
                 
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hidden" id="moduloFormComprador">
-                    <h2 class="text-xs font-black uppercase text-blue-600 tracking-wider mb-4"><i class="fa-solid fa-cart-plus"></i> Inserir Novo Pedido de Compra</h2>
-                    <form id="formCompra" onsubmit="event.preventDefault(); adicionarPedidoComprador();" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hidden relative" id="moduloFormComprador">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xs font-black uppercase text-blue-600 tracking-wider"><i class="fa-solid fa-cart-plus"></i> Inserir / Editar Pedido de Compra</h2>
+                        <button onclick="cancelarEdicaoComprador()" id="btnCancelarEdicaoComprador" class="hidden text-xs font-bold text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i> Cancelar Edição</button>
+                    </div>
+                    <form id="formCompra" onsubmit="event.preventDefault(); adicionarPedidoComprador();" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                        <input type="hidden" id="inputIdEdicaoComprador">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Destino (Obra/Almox)</label>
                             <select id="almoxDestino" onchange="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-blue-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none font-bold text-blue-800">
@@ -187,7 +197,7 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nº Pedido</label>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nº TOTVS</label>
                             <input type="text" id="pedido" oninput="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none font-semibold text-slate-800" required>
                         </div>
                         <div>
@@ -222,11 +232,27 @@
                             <input type="date" id="dataEntrega" onchange="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido outline-none" required>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Valor do Frete</label>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Placa (Opcional)</label>
+                            <input type="text" id="placaComprador" placeholder="ABC1D23" oninput="buscarMotorista(this.value, 'comprador')" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 uppercase font-mono font-bold focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Motorista</label>
+                            <input type="text" id="motoristaComprador" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 font-semibold focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tipo de Frete</label>
+                            <select id="tipoFreteComprador" onchange="tratarCampoValorFob('comprador')" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition outline-none font-bold">
+                                <option value="">Não Informado</option>
+                                <option value="CIF">CIF (Por conta do Fornecedor)</option>
+                                <option value="FOB">FOB (Por conta do Destinatário)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Valor do Frete / FOB</label>
                             <input type="text" id="frete" placeholder="R$ 0,00" oninput="salvarEstadoCamposModoRapido()" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition campo-rapido input-moeda outline-none font-medium" required>
                         </div>
-                        <div class="lg:col-span-4 mt-2">
-                            <button type="submit" class="w-full h-[38px] bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-md transition flex items-center justify-center gap-2">
+                        <div class="xl:col-span-5 lg:col-span-4 mt-2">
+                            <button type="submit" id="btnSubmitComprador" class="w-full h-[38px] bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-md transition flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-paper-plane"></i> Lançar e Enviar p/ Almoxarifado Selecionado
                             </button>
                         </div>
@@ -243,7 +269,7 @@
 
                     <div class="mb-5 p-4 bg-slate-900 text-slate-100 rounded-xl grid grid-cols-2 md:grid-cols-5 gap-4 text-xs select-none relative">
                         <span id="lblAlmoxDestinoInfo" class="absolute -top-3 right-4 bg-emerald-500 text-white font-bold text-[9px] px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm border border-emerald-400">DESTINO</span>
-                        <div><p class="text-slate-400 text-[10px] font-bold uppercase">Pedido do Comprador</p><p class="text-base font-black text-blue-400" id="lblAlmoxPedido">#--</p></div>
+                        <div><p class="text-slate-400 text-[10px] font-bold uppercase">TOTVS Comprador</p><p class="text-base font-black text-blue-400" id="lblAlmoxPedido">--</p></div>
                         <div><p class="text-slate-400 text-[10px] font-bold uppercase">Produto Solicitado</p><p class="font-bold text-white" id="lblAlmoxProduto">--</p></div>
                         <div><p class="text-slate-400 text-[10px] font-bold uppercase">Qtd Solicitada</p><p class="font-bold text-amber-400" id="lblAlmoxQtd">0 TN</p></div>
                         <div><p class="text-slate-400 text-[10px] font-bold uppercase">Valor do Pedido</p><p class="font-bold text-emerald-400" id="lblAlmoxValPed">R$ 0,00</p></div>
@@ -252,6 +278,7 @@
 
                     <form id="formAlmox" onsubmit="event.preventDefault();" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <input type="hidden" id="almoxIdRegistro">
+                        <input type="hidden" id="statusOrigemAlmox">
                         
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nome do Fornecedor</label>
@@ -285,11 +312,22 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Placa do Veículo</label>
-                            <input type="text" id="placa" placeholder="ABC1D23" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white uppercase font-mono font-bold focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                            <input type="text" id="placa" placeholder="ABC1D23" oninput="buscarMotorista(this.value, 'almox')" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white uppercase font-mono font-bold focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nome do Motorista</label>
                             <input type="text" id="motorista" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-semibold focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Tipo de Frete</label>
+                            <select id="tipoFreteAlmox" onchange="tratarCampoValorFob('almox')" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-bold focus:ring-2 focus:ring-emerald-500/20 outline-none" required>
+                                <option value="CIF">CIF</option>
+                                <option value="FOB">FOB</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Valor do Frete (FOB)</label>
+                            <input type="text" id="valorFreteFobAlmox" placeholder="R$ 0,00" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-100 font-bold focus:ring-2 focus:ring-emerald-500/20 input-moeda outline-none" readonly>
                         </div>
 
                         <div id="containerMotivoReprova" class="hidden lg:col-span-4 bg-rose-50 p-3 rounded-lg border border-rose-200">
@@ -302,7 +340,7 @@
                                 <i class="fa-solid fa-circle-xmark"></i> Reprovar Recebimento
                             </button>
                             <button type="button" onclick="processarFluxoAlmoxarife('Aprovado')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-6 py-2.5 rounded-lg shadow-md transition flex items-center gap-2">
-                                <i class="fa-solid fa-circle-check"></i> Aprovar e Enviar p/ Gerente
+                                <i class="fa-solid fa-circle-check"></i> Salvar / Aprovar
                             </button>
                         </div>
                     </form>
@@ -312,7 +350,7 @@
                     <div class="flex flex-wrap items-center gap-3">
                         <div class="relative w-full sm:w-64">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
-                            <input type="text" id="campoPesquisa" oninput="mudarTermoPesquisa()" placeholder="Buscar por Pedido, NF, Fornecedor..." class="w-full pl-9 pr-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+                            <input type="text" id="campoPesquisa" oninput="mudarTermoPesquisa()" placeholder="Buscar por TOTVS, NF, Fornecedor..." class="w-full pl-9 pr-3 py-2 border border-slate-200 bg-slate-50 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
                         </div>
                         
                         <div class="flex flex-wrap bg-slate-100 p-1 rounded-xl border border-slate-200 gap-1 text-[11px] font-semibold" id="botoesFiltrosRapidos">
@@ -341,13 +379,15 @@
                                 <tr class="bg-slate-50 text-slate-500 uppercase font-bold tracking-wider border-b border-slate-200 whitespace-nowrap text-[10px]">
                                     <th class="p-3 w-10 text-center"><input type="checkbox" id="chkSelecionarTodos" onchange="alternarTodosCheckboxes(this)" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500"></th>
                                     <th class="p-3">Destino</th>
-                                    <th class="p-3">Pedido</th>
+                                    <th class="p-3">TOTVS</th>
                                     <th class="p-3">Fornecedor</th>
                                     <th class="p-3">Tipo Brita</th>
                                     <th class="p-3">Qtd Pedido</th>
                                     <th class="p-3">Val. Pedido</th>
                                     <th class="p-3 font-semibold">NF</th>
                                     <th class="p-3">Val. NF</th>
+                                    <th class="p-3">Frete Tipo</th>
+                                    <th class="p-3">Val. Frete (FOB)</th>
                                     <th class="p-3">Qtd Real Entregue</th>
                                     <th class="p-3">Dt Rec.</th>
                                     <th class="p-3">Placa / Mot.</th>
@@ -370,11 +410,115 @@
                 </div>
             </div>
         </div>
+
+        <!-- Central de Usuários -->
+        <div id="aba-usuarios" class="aba-conteudo hidden">
+            <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 border-b border-slate-200">
+                <h1 class="text-lg font-bold text-slate-800">Central de Gestão de Autenticação</h1>
+            </header>
+            <div class="p-6 space-y-4">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-xs font-black uppercase text-blue-600 tracking-wider mb-4"><i class="fa-solid fa-user-plus"></i> Novo Usuário</h2>
+                    <form onsubmit="event.preventDefault(); salvarUsuario();" class="grid grid-cols-1 md:grid-cols-4 gap-4" autocomplete="off">
+                        <input type="hidden" id="cadUsuId">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Login</label>
+                            <input type="text" id="cadUsuLogin" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Senha</label>
+                            <input type="text" id="cadUsuSenha" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nome Completo</label>
+                            <input type="text" id="cadUsuNome" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nível de Acesso (Perfil)</label>
+                            <select id="cadUsuNivel" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white outline-none" required>
+                                <option value="gerente">Gerente</option>
+                                <option value="comprador">Comprador</option>
+                                <option value="almox.jaiba">Almoxarife - Jaíba</option>
+                                <option value="almox.chiquinho">Almoxarife - Chiquinho</option>
+                                <option value="almox.sjoao">Almoxarife - S. João da Ponte</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-4 mt-2">
+                            <button type="submit" id="btnSalvarUsu" class="w-full sm:w-auto px-6 h-[38px] bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-md transition">
+                                Salvar Usuário
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase font-bold tracking-wider border-b border-slate-200">
+                                <th class="p-3">Login</th>
+                                <th class="p-3">Nome</th>
+                                <th class="p-3">Nível</th>
+                                <th class="p-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaUsuarios" class="text-slate-700 divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cadastro de Motoristas -->
+        <div id="aba-motoristas" class="aba-conteudo hidden">
+            <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 border-b border-slate-200">
+                <h1 class="text-lg font-bold text-slate-800">Cadastro de Motoristas e Condutores</h1>
+            </header>
+            <div class="p-6 space-y-4">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-xs font-black uppercase text-blue-600 tracking-wider mb-4"><i class="fa-solid fa-truck-fast"></i> Novo Motorista</h2>
+                    <form onsubmit="event.preventDefault(); salvarMotorista();" class="grid grid-cols-1 md:grid-cols-4 gap-4" autocomplete="off">
+                        <input type="hidden" id="cadMotId">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Placa do Veículo</label>
+                            <input type="text" id="cadMotPlaca" placeholder="ABC1D23" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white uppercase font-mono font-bold outline-none" required>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nome Completo do Motorista</label>
+                            <input type="text" id="cadMotNome" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tipo de Frete Padrão</label>
+                            <select id="cadMotFrete" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white outline-none font-bold" required>
+                                <option value="CIF">CIF</option>
+                                <option value="FOB">FOB</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-4 mt-2">
+                            <button type="submit" id="btnSalvarMot" class="w-full sm:w-auto px-6 h-[38px] bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-md transition">
+                                Salvar Motorista
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase font-bold tracking-wider border-b border-slate-200">
+                                <th class="p-3">Placa</th>
+                                <th class="p-3">Motorista</th>
+                                <th class="p-3">Frete (CIF/FOB)</th>
+                                <th class="p-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaMotoristas" class="text-slate-700 divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getDatabase, ref, set, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { getDatabase, ref, set, push, update, remove, onValue, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBEvAUvccNi6GBiHcrU0tAe0A6083qmNo",
@@ -392,6 +536,8 @@
 
         let grafico1 = null, grafico2 = null, grafico3 = null;
         let todasNotasMemoria = [];
+        let usuariosMemoria = [];
+        let motoristasMemoria = [];
         let notesFiltradas = [];
         let paginaAtual = 1;
         const registrosPorPagina = 25;
@@ -405,19 +551,21 @@
         };
 
         function decodificarUsuarioLogado(u) {
-            if (u === "gerente") return { nome: "GERENTE DE COMPRAS", cargo: "GERENTE", permissao: "MASTER", unidade: "TODAS" };
-            if (u === "comprador") return { nome: "COMPRADOR SUPL.", cargo: "COMPRADOR", permissao: "SUPRIMENTOS", unidade: "TODAS" };
-            if (u === "almox.jaiba") return { nome: "ALMOX. JAIBA", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO", unidade: "JAIBA" };
-            if (u === "almox.chiquinho") return { nome: "ALMOX. CHIQUINHO", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO", unidade: "CHIQUINHO" };
-            if (u === "almox.sjoao") return { nome: "ALMOX. S. JOÃO", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO", unidade: "S. JOAO DA PONTE" };
+            if (u === "gerente") return { nome: "GERENTE DE COMPRAS", cargo: "GERENTE", permissao: "MASTER", unidade: "TODAS", idFirebase: u };
+            if (u === "comprador") return { nome: "COMPRADOR SUPL.", cargo: "COMPRADOR", permissao: "SUPRIMENTOS", unidade: "TODAS", idFirebase: u };
+            if (u === "almox.jaiba") return { nome: "ALMOX. JAIBA", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO", unidade: "JAIBA", idFirebase: u };
+            if (u === "almox.chiquinho") return { nome: "ALMOX. CHIQUINHO", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO", unidade: "CHIQUINHO", idFirebase: u };
+            if (u === "almox.sjoao") return { nome: "ALMOX. S. JOÃO", cargo: "ALMOXARIFE", permissao: "RECEBIMENTO", unidade: "S. JOAO DA PONTE", idFirebase: u };
             return null;
         }
 
         function verificarSessao() {
             const cache = sessionStorage.getItem("rialma_secure_session");
+            const nomeCache = sessionStorage.getItem("rialma_secure_nome");
             if (cache) {
                 const u = cache.trim().toLowerCase();
                 usuarioLogado = decodificarUsuarioLogado(u);
+                if(usuarioLogado && nomeCache) usuarioLogado.nome = nomeCache; // Override for custom users
                 
                 if(usuarioLogado) {
                     document.getElementById("tela-login").classList.add("hidden");
@@ -441,22 +589,46 @@
             }
         };
 
-        window.executarLogin = function(e) {
+        window.executarLogin = async function(e) {
             if (e) e.preventDefault();
+            const btn = document.getElementById("btnAcesso");
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Autenticando...`;
             const u = document.getElementById("loginUsuario").value.trim().toLowerCase();
-            const s = document.getElementById("loginSenha").value.trim().toLowerCase();
+            const s = document.getElementById("loginSenha").value.trim();
 
-            // Lógica simples de autenticação
             let autentico = false;
-            if (u === "gerente" && s === "gerente") autentico = true;
-            else if (u === "comprador" && s === "comprador") autentico = true;
-            else if (u === "almox.jaiba" && s === "almox.jaiba") autentico = true;
-            else if (u === "almox.chiquinho" && s === "almox.chiquinho") autentico = true;
-            else if (u === "almox.sjoao" && s === "almox.sjoao") autentico = true;
+            let nivelCache = u;
+            let nomeCache = null;
+
+            // Busca primeiro na nova base do Firebase
+            const snapshot = await get(ref(db, 'usuarios'));
+            if (snapshot.exists()) {
+                snapshot.forEach(child => {
+                    const usr = child.val();
+                    if (usr.login.toLowerCase() === u && usr.senha === s) {
+                        autentico = true;
+                        nivelCache = usr.nivel;
+                        nomeCache = usr.nome;
+                    }
+                });
+            }
+
+            // Fallback para os usuários base originais
+            if (!autentico) {
+                if (u === "gerente" && s === "gerente") autentico = true;
+                else if (u === "comprador" && s === "comprador") autentico = true;
+                else if (u === "almox.jaiba" && s === "almox.jaiba") autentico = true;
+                else if (u === "almox.chiquinho" && s === "almox.chiquinho") autentico = true;
+                else if (u === "almox.sjoao" && s === "almox.sjoao") autentico = true;
+            }
 
             if (autentico) {
-                usuarioLogado = decodificarUsuarioLogado(u);
-                sessionStorage.setItem("rialma_secure_session", u);
+                usuarioLogado = decodificarUsuarioLogado(nivelCache);
+                if(nomeCache) usuarioLogado.nome = nomeCache;
+
+                sessionStorage.setItem("rialma_secure_session", nivelCache);
+                if(nomeCache) sessionStorage.setItem("rialma_secure_nome", nomeCache);
+
                 document.getElementById("erro-login").classList.add("hidden");
                 document.getElementById("tela-login").classList.add("hidden");
                 document.getElementById("formLogin").reset();
@@ -467,6 +639,7 @@
                 document.getElementById("loginSenha").value = "";
                 document.getElementById("loginSenha").focus();
             }
+            btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Autenticar no Sistema`;
         };
 
         window.executarLogout = function() {
@@ -486,20 +659,26 @@
             document.getElementById("moduloFormAlmoxarife").classList.add("hidden");
             document.getElementById("containerModoRapido").classList.add("hidden");
             document.getElementById("btnLimparTudo").classList.add("hidden");
+            document.getElementById("btn-aba-motoristas").classList.add("hidden");
+            document.getElementById("btn-aba-usuarios").classList.add("hidden");
 
             if (usuarioLogado.permissao === "RECEBIMENTO") {
                 document.getElementById("btn-aba-dashboard").classList.add("hidden");
                 document.getElementById("tituloPainelPrincipal").innerText = `Painel de Entrada - ${usuarioLogado.unidade}`;
+                document.getElementById("btn-aba-motoristas").classList.remove("hidden");
                 alternarAba("aba-lancamentos");
             } 
             else if (usuarioLogado.permissao === "MASTER") {
                 document.getElementById("btnLimparTudo").classList.remove("hidden");
                 document.getElementById("tituloPainelPrincipal").innerText = "Auditoria Global e Aprovação";
+                document.getElementById("btn-aba-usuarios").classList.remove("hidden");
                 alternarAba("aba-dashboard");
             } 
             else if (usuarioLogado.permissao === "SUPRIMENTOS") {
                 document.getElementById("moduloFormComprador").classList.remove("hidden");
                 document.getElementById("containerModoRapido").classList.remove("hidden");
+                document.getElementById("btn-aba-motoristas").classList.remove("hidden");
+                document.getElementById("btn-aba-usuarios").classList.remove("hidden");
                 document.getElementById("tituloPainelPrincipal").innerText = "Gestão de Ordens de Compra";
                 recuperarConfigEModoRapido();
                 alternarAba("aba-dashboard");
@@ -558,25 +737,40 @@
                     let value = e.target.value.replace(/\D/g, "");
                     if(value === "") { e.target.value = ""; return; }
                     e.target.value = (parseFloat(value) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    window.salvarEstadoCamposModoRapido();
+                    if(e.target.id === 'frete') window.salvarEstadoCamposModoRapido();
                 });
             });
         }
 
-        // FIREBASE REALTIME LISTENER
+        // FIREBASE REALTIME LISTENERS
         function iniciarListenerFirebase() {
-            const notasRef = ref(db, 'notas');
-            onValue(notasRef, (snapshot) => {
+            onValue(ref(db, 'notas'), (snapshot) => {
                 const data = snapshot.val();
                 todasNotasMemoria = [];
                 if (data) {
-                    for (let key in data) {
-                        todasNotasMemoria.push({ id: key, ...data[key] });
-                    }
+                    for (let key in data) { todasNotasMemoria.push({ id: key, ...data[key] }); }
                     todasNotasMemoria.reverse();
                 }
                 processarEFiltrarDados();
             });
+
+            if (usuarioLogado.permissao === "MASTER" || usuarioLogado.permissao === "SUPRIMENTOS") {
+                onValue(ref(db, 'usuarios'), (snapshot) => {
+                    usuariosMemoria = [];
+                    const data = snapshot.val();
+                    if(data) { for(let key in data) usuariosMemoria.push({ id: key, ...data[key] }); }
+                    renderizarUsuarios();
+                });
+            }
+
+            if (usuarioLogado.permissao === "SUPRIMENTOS" || usuarioLogado.permissao === "RECEBIMENTO") {
+                onValue(ref(db, 'motoristas'), (snapshot) => {
+                    motoristasMemoria = [];
+                    const data = snapshot.val();
+                    if(data) { for(let key in data) motoristasMemoria.push({ id: key, ...data[key] }); }
+                    if(document.getElementById('tabelaMotoristas')) renderizarMotoristas();
+                });
+            }
         }
 
         window.alternarAba = function(idAba) {
@@ -586,13 +780,18 @@
             
             const btnDash = document.getElementById('btn-aba-dashboard');
             const btnLanc = document.getElementById('btn-aba-lancamentos');
-            if(idAba === 'aba-dashboard') {
-                btnDash.className = "w-full flex items-center gap-3 px-4 py-3 bg-blue-600 rounded-xl text-white font-medium transition";
-                btnLanc.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition font-medium";
-            } else {
-                btnLanc.className = "w-full flex items-center gap-3 px-4 py-3 bg-blue-600 rounded-xl text-white font-medium transition";
-                btnDash.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition font-medium";
-            }
+            const btnMot = document.getElementById('btn-aba-motoristas');
+            const btnUsu = document.getElementById('btn-aba-usuarios');
+
+            [btnDash, btnLanc, btnMot, btnUsu].forEach(btn => {
+                if(btn && !btn.classList.contains('hidden')) {
+                    if(btn.id === 'btn-' + idAba) {
+                        btn.className = btn.className.replace('text-slate-400 hover:bg-slate-800 hover:text-white', 'bg-blue-600 text-white');
+                    } else {
+                        btn.className = btn.className.replace('bg-blue-600 text-white', 'text-slate-400 hover:bg-slate-800 hover:text-white');
+                    }
+                }
+            });
         };
 
         function formatarData(dStr) {
@@ -615,6 +814,44 @@
             });
         }
 
+        // LÓGICA DE MOTORISTAS E FRETE
+        window.tratarCampoValorFob = function(origem) {
+            if(origem === 'comprador') {
+                // Comprador usa o campo frete atual
+                const tf = document.getElementById('tipoFreteComprador').value;
+                if(tf === 'CIF') { document.getElementById('frete').value = 'R$ 0,00'; }
+            } else {
+                const tf = document.getElementById('tipoFreteAlmox').value;
+                const field = document.getElementById('valorFreteFobAlmox');
+                if(tf === 'FOB') {
+                    field.readOnly = false;
+                    field.classList.replace('bg-slate-100', 'bg-white');
+                    if(field.value === '' || field.value === 'R$ 0,00') field.value = '';
+                    field.focus();
+                } else {
+                    field.readOnly = true;
+                    field.classList.replace('bg-white', 'bg-slate-100');
+                    field.value = 'R$ 0,00';
+                }
+            }
+        };
+
+        window.buscarMotorista = function(placa, origem) {
+            const p = placa.toUpperCase();
+            const mot = motoristasMemoria.find(m => m.placa === p);
+            if(mot) {
+                if(origem === 'comprador') {
+                    document.getElementById('motoristaComprador').value = mot.nome;
+                    document.getElementById('tipoFreteComprador').value = mot.tipoFrete;
+                    tratarCampoValorFob('comprador');
+                } else {
+                    document.getElementById('motorista').value = mot.nome;
+                    document.getElementById('tipoFreteAlmox').value = mot.tipoFrete;
+                    tratarCampoValorFob('almox');
+                }
+            }
+        };
+
         window.adicionarPedidoComprador = function() {
             const almoxDestino = document.getElementById('almoxDestino').value;
             const pedido = document.getElementById('pedido').value.trim();
@@ -625,28 +862,49 @@
             const dataPgto = document.getElementById('dataPgto').value;
             const dataEntrega = document.getElementById('dataEntrega').value;
             const frete = document.getElementById('frete').value || '-';
+            const placa = document.getElementById('placaComprador').value.trim().toUpperCase() || '-';
+            const motorista = document.getElementById('motoristaComprador').value.trim() || '-';
+            const tipoFrete = document.getElementById('tipoFreteComprador').value;
 
-            if (!pedido || !qtdTotal) { alert("Preencha o Nº do Pedido e a Quantidade."); return; }
+            if (!pedido || !qtdTotal) { alert("Preencha o Nº do TOTVS e a Quantidade."); return; }
 
-            const novoRegistro = { 
-                almoxarifadoDestino: almoxDestino,
-                pedido, tipoBrita, qtdTotal, unidadeMedida, valPedido, dataPgto, dataEntrega, frete,
+            const dadosRegistro = { 
+                almoxarifadoDestino: almoxDestino, pedido, tipoBrita, qtdTotal, unidadeMedida, 
+                valPedido, dataPgto, dataEntrega, frete, placa, motorista, tipoFrete,
                 fornecedor: '-', notaFiscal: '-', valNota: '-', pesoTon: 0, unidadeMedidaAlmox: '',
-                dataRecebimento: '', dataVencimentoBoleto: '', placa: '-', motorista: '-',
+                dataRecebimento: '', dataVencimentoBoleto: '', valorFreteFob: '-',
                 statusFluxo: "Aguardando Almox", vistoGerente: "Não", motivoReprovacao: ''
             };
 
-            const notasRef = ref(db, 'notas');
-            push(notasRef, novoRegistro).then(() => {
-                mostrarToast();
-                if(document.getElementById('chkManterDados').checked) {
-                    document.getElementById('pedido').value = "";
-                    document.getElementById('pedido').focus();
-                } else {
-                    document.getElementById('formCompra').reset();
-                    localStorage.removeItem("rialma_campos_rapidos");
-                }
-            }).catch(error => console.error("Erro ao inserir:", error));
+            const idEdicao = document.getElementById('inputIdEdicaoComprador').value;
+
+            if (idEdicao) {
+                const atual = todasNotasMemoria.find(n => n.id === idEdicao);
+                update(ref(db, 'notas/' + idEdicao), {
+                    ...dadosRegistro,
+                    fornecedor: atual.fornecedor, notaFiscal: atual.notaFiscal, valNota: atual.valNota,
+                    pesoTon: atual.pesoTon, unidadeMedidaAlmox: atual.unidadeMedidaAlmox,
+                    dataRecebimento: atual.dataRecebimento, dataVencimentoBoleto: atual.dataVencimentoBoleto,
+                    valorFreteFob: atual.valorFreteFob, statusFluxo: atual.statusFluxo, 
+                    vistoGerente: atual.vistoGerente, motivoReprovacao: atual.motivoReprovacao
+                }).then(() => {
+                    mostrarToast();
+                    cancelarEdicaoComprador();
+                });
+            } else {
+                push(ref(db, 'notas'), dadosRegistro).then(() => {
+                    mostrarToast();
+                    if(document.getElementById('chkManterDados').checked) {
+                        document.getElementById('pedido').value = "";
+                        document.getElementById('placaComprador').value = "";
+                        document.getElementById('motoristaComprador').value = "";
+                        document.getElementById('pedido').focus();
+                    } else {
+                        document.getElementById('formCompra').reset();
+                        localStorage.removeItem("rialma_campos_rapidos");
+                    }
+                }).catch(error => console.error("Erro ao inserir:", error));
+            }
         };
 
         window.abrirFormAlmoxarife = function(id, nrPedido, produto, qtd, unidade, valPed, frete, destinoInfo) {
@@ -654,18 +912,40 @@
             document.getElementById('almoxIdRegistro').value = id;
             
             document.getElementById('lblAlmoxDestinoInfo').innerText = destinoInfo;
-            document.getElementById('lblAlmoxPedido').innerText = "#" + nrPedido;
+            document.getElementById('lblAlmoxPedido').innerText = nrPedido;
             document.getElementById('lblAlmoxProduto').innerText = produto;
             document.getElementById('lblAlmoxQtd').innerText = qtd + " " + unidade;
             document.getElementById('lblAlmoxValPed').innerText = valPed;
             document.getElementById('lblAlmoxFrete').innerText = frete;
             
-            // Preenche automaticamente a unidade com a selecionada pelo comprador
             document.getElementById('unidadeMedidaAlmox').value = unidade;
 
+            const notaAtual = todasNotasMemoria.find(n => n.id === id);
+            document.getElementById('statusOrigemAlmox').value = notaAtual.statusFluxo;
+
+            if (notaAtual.fornecedor && notaAtual.fornecedor !== '-') {
+                document.getElementById('fornecedor').value = notaAtual.fornecedor;
+                document.getElementById('notaFiscal').value = notaAtual.notaFiscal;
+                document.getElementById('valNota').value = notaAtual.valNota;
+                document.getElementById('pesoTon').value = notaAtual.pesoTon;
+                document.getElementById('dataRecebimento').value = notaAtual.dataRecebimento;
+                document.getElementById('dataVencimentoBoleto').value = notaAtual.dataVencimentoBoleto;
+                document.getElementById('placa').value = notaAtual.placa !== '-' ? notaAtual.placa : '';
+                document.getElementById('motorista').value = notaAtual.motorista !== '-' ? notaAtual.motorista : '';
+                document.getElementById('tipoFreteAlmox').value = notaAtual.tipoFrete || 'CIF';
+                document.getElementById('valorFreteFobAlmox').value = notaAtual.valorFreteFob !== '-' ? notaAtual.valorFreteFob : 'R$ 0,00';
+            } else {
+                document.getElementById('placa').value = notaAtual.placa !== '-' ? notaAtual.placa : '';
+                document.getElementById('motorista').value = notaAtual.motorista !== '-' ? notaAtual.motorista : '';
+                document.getElementById('tipoFreteAlmox').value = notaAtual.tipoFrete || 'CIF';
+                document.getElementById('valorFreteFobAlmox').value = 'R$ 0,00';
+            }
+
+            tratarCampoValorFob('almox');
             document.getElementById('containerMotivoReprova').classList.add('hidden');
             document.getElementById('motivoReprova').value = "";
             document.getElementById('fornecedor').focus();
+            window.scrollTo({ top: document.getElementById('moduloFormAlmoxarife').offsetTop - 50, behavior: 'smooth' });
         };
 
         window.cancelarPreenchimentoAlmox = function() {
@@ -673,17 +953,56 @@
             document.getElementById('formAlmox').reset();
         };
 
+        window.cancelarEdicaoComprador = function() {
+            document.getElementById('inputIdEdicaoComprador').value = "";
+            document.getElementById('btnCancelarEdicaoComprador').classList.add('hidden');
+            document.getElementById('btnSubmitComprador').innerHTML = `<i class="fa-solid fa-paper-plane"></i> Lançar e Enviar p/ Almoxarifado Selecionado`;
+            document.getElementById('formCompra').reset();
+            recuperarConfigEModoRapido();
+        };
+
+        window.editarRegistroGlobal = function(id) {
+            const nota = todasNotasMemoria.find(n => n.id === id);
+            if(!nota) return;
+
+            if (usuarioLogado.permissao === "SUPRIMENTOS") {
+                document.getElementById('inputIdEdicaoComprador').value = id;
+                document.getElementById('almoxDestino').value = nota.almoxarifadoDestino;
+                document.getElementById('pedido').value = nota.pedido;
+                document.getElementById('tipoBrita').value = nota.tipoBrita;
+                document.getElementById('qtdTotal').value = nota.qtdTotal;
+                document.getElementById('unidadeMedida').value = nota.unidadeMedida;
+                document.getElementById('valPedido').value = nota.valPedido;
+                document.getElementById('dataPgto').value = nota.dataPgto;
+                document.getElementById('dataEntrega').value = nota.dataEntrega;
+                document.getElementById('placaComprador').value = nota.placa !== '-' ? nota.placa : '';
+                document.getElementById('motoristaComprador').value = nota.motorista !== '-' ? nota.motorista : '';
+                document.getElementById('tipoFreteComprador').value = nota.tipoFrete || '';
+                document.getElementById('frete').value = nota.frete;
+
+                document.getElementById('btnCancelarEdicaoComprador').classList.remove('hidden');
+                document.getElementById('btnSubmitComprador').innerHTML = `<i class="fa-solid fa-save"></i> Salvar Alterações no Pedido`;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } 
+            else if (usuarioLogado.permissao === "RECEBIMENTO") {
+                abrirFormAlmoxarife(id, nota.pedido, nota.tipoBrita, nota.qtdTotal, nota.unidadeMedida, nota.valPedido, nota.frete, nota.almoxarifadoDestino);
+            }
+        };
+
         window.processarFluxoAlmoxarife = function(decisao) {
             const id = document.getElementById('almoxIdRegistro').value; 
+            const statusOrigem = document.getElementById('statusOrigemAlmox').value; 
             const fornecedor = document.getElementById('fornecedor').value.trim();
             const nf = document.getElementById('notaFiscal').value.trim();
             const valNf = document.getElementById('valNota').value || '-';
             const peso = parseFloat(document.getElementById('pesoTon').value) || 0;
-            const undAlmox = document.getElementById('unidadeMedidaAlmox').value; // Unidade escolhida no recebimento
+            const undAlmox = document.getElementById('unidadeMedidaAlmox').value; 
             const dtRec = document.getElementById('dataRecebimento').value;
             const dtVenc = document.getElementById('dataVencimentoBoleto').value;
             const placa = document.getElementById('placa').value.trim().toUpperCase();
             const motorista = document.getElementById('motorista').value.trim();
+            const tipoFrete = document.getElementById('tipoFreteAlmox').value;
+            const valFob = document.getElementById('valorFreteFobAlmox').value || '-';
             const motivo = document.getElementById('motivoReprova').value.trim();
 
             if (!fornecedor || !nf || !peso || !dtRec || !dtVenc || !placa || !motorista) {
@@ -698,24 +1017,120 @@
                 return;
             }
 
+            // Se for só edição, não muda o status caso já esteja em Gerência
+            let novoStatus = decisao === 'Aprovado' ? "Aguardando Gerente" : "Reprovado pelo Almox";
+            if(statusOrigem === "Aguardando Gerente" || statusOrigem === "Autorizado / Concluído") {
+                novoStatus = statusOrigem; // Mantém status na edição
+            }
+
             const notaRef = ref(db, 'notas/' + id);
             update(notaRef, {
-                fornecedor: fornecedor,
-                notaFiscal: nf,
-                valNota: valNf,
-                pesoTon: peso,
-                unidadeMedidaAlmox: undAlmox,
-                dataRecebimento: dtRec,
-                dataVencimentoBoleto: dtVenc,
-                placa: placa,
-                motorista: motorista,
-                statusFluxo: decisao === 'Aprovado' ? "Aguardando Gerente" : "Reprovado pelo Almox",
+                fornecedor: fornecedor, notaFiscal: nf, valNota: valNf, pesoTon: peso,
+                unidadeMedidaAlmox: undAlmox, dataRecebimento: dtRec, dataVencimentoBoleto: dtVenc,
+                placa: placa, motorista: motorista, tipoFrete: tipoFrete, valorFreteFob: valFob,
+                statusFluxo: novoStatus,
                 motivoReprovacao: decisao === 'Aprovado' ? "" : motivo
             }).then(() => {
                 mostrarToast();
                 window.cancelarPreenchimentoAlmox();
             }).catch(error => console.error("Erro ao atualizar:", error));
         };
+
+        // ... MÉTODOS CRUD MOTORISTAS ...
+        window.salvarMotorista = function() {
+            const id = document.getElementById('cadMotId').value;
+            const dados = {
+                placa: document.getElementById('cadMotPlaca').value.trim().toUpperCase(),
+                nome: document.getElementById('cadMotNome').value.trim(),
+                tipoFrete: document.getElementById('cadMotFrete').value
+            };
+            if(id) { update(ref(db, 'motoristas/' + id), dados).then(() => resetFormMot()); } 
+            else { push(ref(db, 'motoristas'), dados).then(() => resetFormMot()); }
+        };
+        function resetFormMot() {
+            document.getElementById('cadMotId').value = "";
+            document.getElementById('cadMotPlaca').value = "";
+            document.getElementById('cadMotNome').value = "";
+            document.getElementById('btnSalvarMot').innerText = "Salvar Motorista";
+            mostrarToast();
+        }
+        window.editarMotorista = function(id) {
+            const m = motoristasMemoria.find(x => x.id === id);
+            if(m) {
+                document.getElementById('cadMotId').value = m.id;
+                document.getElementById('cadMotPlaca').value = m.placa;
+                document.getElementById('cadMotNome').value = m.nome;
+                document.getElementById('cadMotFrete').value = m.tipoFrete;
+                document.getElementById('btnSalvarMot').innerText = "Atualizar Motorista";
+            }
+        };
+        window.excluirMotorista = function(id) {
+            if(confirm("Excluir este motorista?")) remove(ref(db, 'motoristas/' + id));
+        };
+        function renderizarMotoristas() {
+            const tb = document.getElementById('tabelaMotoristas');
+            tb.innerHTML = motoristasMemoria.map(m => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 font-mono font-bold">${m.placa}</td>
+                    <td class="p-3">${m.nome}</td>
+                    <td class="p-3 font-bold text-[10px]"><span class="px-2 py-1 rounded bg-slate-100 border">${m.tipoFrete}</span></td>
+                    <td class="p-3 text-center">
+                        <button onclick="editarMotorista('${m.id}')" class="text-blue-500 hover:text-blue-700 mx-1"><i class="fa-solid fa-pencil"></i></button>
+                        <button onclick="excluirMotorista('${m.id}')" class="text-rose-500 hover:text-rose-700 mx-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ... MÉTODOS CRUD USUÁRIOS ...
+        window.salvarUsuario = function() {
+            const id = document.getElementById('cadUsuId').value;
+            const dados = {
+                login: document.getElementById('cadUsuLogin').value.trim(),
+                senha: document.getElementById('cadUsuSenha').value.trim(),
+                nome: document.getElementById('cadUsuNome').value.trim(),
+                nivel: document.getElementById('cadUsuNivel').value
+            };
+            if(id) { update(ref(db, 'usuarios/' + id), dados).then(() => resetFormUsu()); } 
+            else { push(ref(db, 'usuarios'), dados).then(() => resetFormUsu()); }
+        };
+        function resetFormUsu() {
+            document.getElementById('cadUsuId').value = "";
+            document.getElementById('cadUsuLogin').value = "";
+            document.getElementById('cadUsuSenha').value = "";
+            document.getElementById('cadUsuNome').value = "";
+            document.getElementById('btnSalvarUsu').innerText = "Salvar Usuário";
+            mostrarToast();
+        }
+        window.editarUsuario = function(id) {
+            const u = usuariosMemoria.find(x => x.id === id);
+            if(u) {
+                document.getElementById('cadUsuId').value = u.id;
+                document.getElementById('cadUsuLogin').value = u.login;
+                document.getElementById('cadUsuSenha').value = u.senha;
+                document.getElementById('cadUsuNome').value = u.nome;
+                document.getElementById('cadUsuNivel').value = u.nivel;
+                document.getElementById('btnSalvarUsu').innerText = "Atualizar Usuário";
+            }
+        };
+        window.excluirUsuario = function(id) {
+            if(confirm("Excluir acesso deste usuário?")) remove(ref(db, 'usuarios/' + id));
+        };
+        function renderizarUsuarios() {
+            const tb = document.getElementById('tabelaUsuarios');
+            if(!tb) return;
+            tb.innerHTML = usuariosMemoria.map(u => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 font-bold">${u.login}</td>
+                    <td class="p-3">${u.nome}</td>
+                    <td class="p-3 text-[10px] font-bold text-slate-500 uppercase">${u.nivel}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="editarUsuario('${u.id}')" class="text-blue-500 hover:text-blue-700 mx-1"><i class="fa-solid fa-pencil"></i></button>
+                        <button onclick="excluirUsuario('${u.id}')" class="text-rose-500 hover:text-rose-700 mx-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
 
         window.gerenciarAutorizacao = function(id, status) {
             const notaRef = ref(db, 'notas/' + id);
@@ -783,7 +1198,7 @@
                 if (nota.statusFluxo === 'Aguardando Almox') pAlmox++;
                 
                 sumFinanceiroNF += converterMoedaParaFloat(nota.valNota);
-                sumFretes += converterMoedaParaFloat(nota.frete);
+                sumFretes += converterMoedaParaFloat(nota.frete); // Considera frete do comprador pro dashboard
 
                 if (pesosPorBrita[nota.tipoBrita] !== undefined) {
                     pesosPorBrita[nota.tipoBrita] += pesoReal;
@@ -879,7 +1294,7 @@
             const inicio = (paginaAtual - 1) * registrosPorPagina;
             const notasDaPagina = notesFiltradas.slice(inicio, inicio + registrosPorPagina);
 
-            tabelaCorpo.innerHTML = notasDaPagina.length === 0 ? `<tr><td colspan="15" class="p-4 text-center text-slate-400 italic">Nenhum registro localizado.</td></tr>` : "";
+            tabelaCorpo.innerHTML = notasDaPagina.length === 0 ? `<tr><td colspan="17" class="p-4 text-center text-slate-400 italic">Nenhum registro localizado.</td></tr>` : "";
 
             const ehAlmox = (usuarioLogado && usuarioLogado.permissao === "RECEBIMENTO");
             const ehComprador = (usuarioLogado && usuarioLogado.permissao === "SUPRIMENTOS");
@@ -887,7 +1302,7 @@
 
             notasDaPagina.forEach(nota => {
                 const unidade = nota.unidadeMedida || 'TN';
-                const unidadeReal = nota.unidadeMedidaAlmox || unidade; // Unidade validada pelo almoxarife
+                const unidadeReal = nota.unidadeMedidaAlmox || unidade; 
 
                 let badgeStatus = "";
                 
@@ -914,12 +1329,13 @@
 
                 let acaoCelula = `<td class="p-2 text-center text-slate-400 font-medium">-</td>`;
                 let botaoLixeira = (ehComprador || ehGerente) ? `<button onclick="excluirRegistro('${nota.id}')" class="text-rose-500 hover:text-rose-700 ml-2 p-1 text-[11px]" title="Excluir Registro Antigo/Errado"><i class="fa-solid fa-trash"></i></button>` : '';
+                let botaoLapis = (ehComprador || ehAlmox) ? `<button onclick="editarRegistroGlobal('${nota.id}')" class="text-blue-500 hover:text-blue-700 ml-2 p-1 text-[11px]" title="Editar"><i class="fa-solid fa-pencil"></i></button>` : '';
                 
                 if(ehAlmox) {
                     if(nota.statusFluxo === "Aguardando Almox") {
-                        acaoCelula = `<td class="p-2 text-center"><button onclick="abrirFormAlmoxarife('${nota.id}', '${nota.pedido}', '${nota.tipoBrita}', ${nota.qtdTotal}, '${unidade}', '${nota.valPedido}', '${nota.frete}', '${nota.almoxarifadoDestino}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-truck-pickup"></i> Confrontar</button></td>`;
+                        acaoCelula = `<td class="p-2 text-center"><button onclick="abrirFormAlmoxarife('${nota.id}', '${nota.pedido}', '${nota.tipoBrita}', ${nota.qtdTotal}, '${unidade}', '${nota.valPedido}', '${nota.frete}', '${nota.almoxarifadoDestino}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg transition shadow-sm"><i class="fa-solid fa-truck-pickup"></i> Confrontar</button>${botaoLapis}</td>`;
                     } else {
-                        acaoCelula = `<td class="p-2 text-center text-emerald-600 font-bold text-[11px]"><i class="fa-solid fa-square-check"></i> Concluído</td>`;
+                        acaoCelula = `<td class="p-2 text-center text-emerald-600 font-bold text-[11px]"><i class="fa-solid fa-square-check"></i> Concluído ${botaoLapis}</td>`;
                     }
                 } 
                 else if(ehGerente) {
@@ -932,7 +1348,7 @@
                     }
                 }
                 else if(ehComprador) {
-                    acaoCelula = `<td class="p-2 text-center flex items-center justify-center text-slate-400 font-medium">- ${botaoLixeira}</td>`;
+                    acaoCelula = `<td class="p-2 text-center flex items-center justify-center text-slate-400 font-medium">${botaoLapis} ${botaoLixeira}</td>`;
                 }
 
                 tabelaCorpo.innerHTML += `
@@ -941,7 +1357,7 @@
                             <input type="checkbox" data-id="${nota.id}" class="select-nota rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                         </td>
                         <td class="p-3 font-bold text-[9px]"><span class="px-2 py-1 rounded-full border ${destinoCor}">${nota.almoxarifadoDestino || "N/A"}</span></td>
-                        <td class="p-3 font-semibold text-blue-600">#${nota.pedido}</td>
+                        <td class="p-3 font-semibold text-blue-600">${nota.pedido}</td>
                         <td class="p-3 font-medium text-slate-600 truncate max-w-[120px]" title="${nota.fornecedor}">${nota.fornecedor}</td>
                         <td class="p-3 font-bold text-slate-700 text-[11px]">${nota.tipoBrita}</td>
                         
@@ -950,6 +1366,10 @@
                         
                         <td class="p-3 font-mono font-bold text-slate-600">${nota.notaFiscal}</td>
                         <td class="p-3 text-right font-bold ${diferencaFinanceira ? 'text-rose-700 font-black' : 'text-slate-900'}">${nota.valNota}</td>
+                        
+                        <td class="p-3 font-bold text-slate-700 text-center"><span class="bg-slate-100 px-1 py-0.5 rounded border">${nota.tipoFrete || '-'}</span></td>
+                        <td class="p-3 text-right font-bold text-slate-700">${nota.tipoFrete === 'FOB' ? (nota.valorFreteFob || '-') : '-'}</td>
+
                         <td class="p-3 font-black ${diferencaPeso ? 'text-rose-700 font-black' : 'text-slate-900'}">${nota.pesoTon > 0 ? nota.pesoTon + ' ' + unidadeReal : '-'}</td>
                         
                         <td class="p-3 text-slate-500">${formatarData(nota.dataRecebimento)}</td>
@@ -1015,7 +1435,7 @@
             let totalGeralPeso = 0;
             let totalGeralFinanceiro = 0;
 
-            const cabecalhos = [["Ped.", "Fornecedor", "Tipo", "Qtd Ped", "NF", "Valor NF", "Qtd Real", "Dt Rec.", "Placa / Mot.", "Fluxo", "Validações (Almox/Dir)"]];
+            const cabecalhos = [["TOTVS", "Fornecedor", "Tipo", "Qtd Ped", "NF", "Valor NF", "Tipo Frete", "Val. FOB", "Qtd Real", "Dt Rec.", "Placa / Mot.", "Fluxo", "Validações (Almox/Dir)"]];
 
             for (const [obra, notasObra] of Object.entries(notasAgrupadas)) {
                 if (currentY > doc.internal.pageSize.getHeight() - 40) { doc.addPage(); currentY = 20; }
@@ -1047,12 +1467,14 @@
                     }
 
                     return [
-                        `#${n.pedido}`,
+                        n.pedido,
                         n.fornecedor,
                         n.tipoBrita,
                         `${n.qtdTotal} ${unidade}`,
                         n.notaFiscal,
                         n.valNota,
+                        n.tipoFrete || '-',
+                        n.tipoFrete === 'FOB' ? (n.valorFreteFob || '-') : '-',
                         n.pesoTon > 0 ? `${n.pesoTon} ${unidadeReal}` : '-',
                         formatarData(n.dataRecebimento),
                         `${n.placa}\n${n.motorista}`,
@@ -1066,6 +1488,7 @@
                     `${notasObra.length} item(ns)`,
                     "", "", "",
                     subtotalFinan.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                    "", "",
                     `${subtotalPeso.toFixed(2)} Vol.`,
                     "", "", "", "" 
                 ]);
@@ -1082,11 +1505,12 @@
                         0: { fontStyle: 'bold', halign: 'center' },
                         3: { halign: 'right' },
                         5: { halign: 'right', fontStyle: 'bold' },
-                        6: { halign: 'right', fontStyle: 'bold' },
-                        7: { halign: 'center' },
-                        8: { halign: 'center', fontSize: 7 },
+                        7: { halign: 'right', fontStyle: 'bold' },
+                        8: { halign: 'right', fontStyle: 'bold' },
                         9: { halign: 'center' },
-                        10: { halign: 'left', fontStyle: 'bold', fontSize: 7 } 
+                        10: { halign: 'center', fontSize: 7 },
+                        11: { halign: 'center' },
+                        12: { halign: 'left', fontStyle: 'bold', fontSize: 7 } 
                     },
                     didParseCell: function(data) {
                         if (data.row.index === linhasObra.length - 1) {
@@ -1094,7 +1518,7 @@
                             data.cell.styles.fontStyle = 'bold';
                             data.cell.styles.textColor = corPrimaria;
                         }
-                        if (data.column.index === 9 && data.cell.raw === 'Reprovado pelo Almox') {
+                        if (data.column.index === 11 && data.cell.raw === 'Reprovado pelo Almox') {
                             data.cell.styles.textColor = [225, 29, 72];
                             data.cell.styles.fontStyle = 'bold';
                         }
@@ -1173,11 +1597,12 @@
 
         window.exportarParaExcel = function() {
             if(todasNotasMemoria.length === 0) return;
-            let csv = "\uFEFFDestino;Pedido;Fornecedor;Tipo Brita;Qtd Pedido;Nota Fiscal;Qtd Real;Data Recebimento;Vencimento Boleto;Placa;Motorista;Status\n";
+            let csv = "\uFEFFDestino;TOTVS;Fornecedor;Tipo Brita;Qtd Pedido;Nota Fiscal;Tipo Frete;Valor FOB;Qtd Real;Data Recebimento;Vencimento Boleto;Placa;Motorista;Status\n";
             todasNotasMemoria.forEach(n => { 
                 const u = n.unidadeMedida || 'TN';
-                const uReal = n.unidadeMedidaAlmox || u; // Ajuste nova regra
-                csv += `${n.almoxarifadoDestino || "N/A"};${n.pedido};${n.fornecedor};${n.tipoBrita};${n.qtdTotal} ${u};${n.notaFiscal};${n.pesoTon > 0 ? n.pesoTon + ' ' + uReal : '-'};${n.dataRecebimento};${n.dataVencimentoBoleto};${n.placa};${n.motorista};${n.statusFluxo}\n`; 
+                const uReal = n.unidadeMedidaAlmox || u; 
+                const valFobEx = n.tipoFrete === 'FOB' ? (n.valorFreteFob || '-') : '-';
+                csv += `${n.almoxarifadoDestino || "N/A"};${n.pedido};${n.fornecedor};${n.tipoBrita};${n.qtdTotal} ${u};${n.notaFiscal};${n.tipoFrete || '-'};${valFobEx};${n.pesoTon > 0 ? n.pesoTon + ' ' + uReal : '-'};${n.dataRecebimento};${n.dataVencimentoBoleto};${n.placa};${n.motorista};${n.statusFluxo}\n`; 
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
