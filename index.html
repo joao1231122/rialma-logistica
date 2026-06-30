@@ -644,6 +644,11 @@
             sessionStorage.clear();
             localStorage.removeItem("rialma_campos_rapidos");
             usuarioLogado = null;
+            // Limpa as variáveis de memória para não vazar cache ao trocar de usuário
+            todasNotasMemoria = [];
+            usuariosMemoria = [];
+            motoristasMemoria = [];
+            notesFiltradas = [];
             window.location.reload();
         };
 
@@ -1277,6 +1282,10 @@
             return parseFloat(limpo) || 0;
         }
 
+        // ==== CORREÇÃO DE MEMÓRIA (DOM Reflow Optimization) ====
+        // Em vez de adicionar uma linha por vez usando "tabelaCorpo.innerHTML +=" (o que trava
+        // o navegador se tiver centenas de itens), vamos construir o HTML em memória
+        // e inserir na tabela de uma só vez no final da função.
         function renderizarTabelaPaginada() {
             const tabelaCorpo = document.getElementById('tabelaCorpo');
             if(!tabelaCorpo) return;
@@ -1304,7 +1313,7 @@
             const inicio = (paginaAtual - 1) * registrosPorPagina;
             const notasDaPagina = notesFiltradas.slice(inicio, inicio + registrosPorPagina);
 
-            tabelaCorpo.innerHTML = notasDaPagina.length === 0 ? `<tr><td colspan="17" class="p-4 text-center text-slate-400 italic">Nenhum registro localizado.</td></tr>` : "";
+            let construtorHtml = notasDaPagina.length === 0 ? `<tr><td colspan="17" class="p-4 text-center text-slate-400 italic">Nenhum registro localizado.</td></tr>` : "";
 
             const ehAlmox = (usuarioLogado && usuarioLogado.permissao === "RECEBIMENTO");
             const ehComprador = (usuarioLogado && usuarioLogado.permissao === "SUPRIMENTOS");
@@ -1361,7 +1370,7 @@
                     acaoCelula = `<td class="p-2 text-center flex items-center justify-center text-slate-400 font-medium">${botaoLapis} ${botaoLixeira}</td>`;
                 }
 
-                tabelaCorpo.innerHTML += `
+                construtorHtml += `
                     <tr class="transition-colors ${classeLinha}">
                         <td class="p-3 text-center">
                             <input type="checkbox" data-id="${nota.id}" class="select-nota rounded border-slate-300 text-blue-600 focus:ring-blue-500">
@@ -1393,6 +1402,9 @@
                         ${acaoCelula}
                     </tr>`;
             });
+
+            // Inserção no DOM acontece uma única vez aqui, prevenindo reflow e memory leak
+            tabelaCorpo.innerHTML = construtorHtml;
 
             document.getElementById('infoPaginacao').innerText = totalRegistros > 0 
                 ? `Exibindo ${inicio + 1} até ${Math.min(inicio + registrosPorPagina, totalRegistros)} de ${totalRegistros}`
