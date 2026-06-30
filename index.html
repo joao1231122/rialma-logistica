@@ -1530,11 +1530,11 @@
                     alternateRowStyles: { fillColor: [248, 250, 252] },
                     columnStyles: {
                         0: { fontStyle: 'bold', halign: 'center' },
-                        3: { halign: 'right' },
+                        3: { halign: 'right', minCellWidth: 16 }, // FIX: Impede quebra de linha na Qtd
                         4: { halign: 'center', minCellWidth: 18 }, // FIX: Impede que a NF quebre a linha
-                        5: { halign: 'right', fontStyle: 'bold' },
-                        7: { halign: 'right', fontStyle: 'bold' },
-                        8: { halign: 'right', fontStyle: 'bold' },
+                        5: { halign: 'right', fontStyle: 'bold', minCellWidth: 22 }, // FIX: Impede quebra no Valor NF
+                        7: { halign: 'right', fontStyle: 'bold', minCellWidth: 22 }, // FIX: Impede quebra no Valor FOB
+                        8: { halign: 'right', fontStyle: 'bold', minCellWidth: 16 }, // FIX: Impede quebra na Qtd Real
                         9: { halign: 'center', minCellWidth: 16 }, // FIX: Impede que a data quebre
                         10: { halign: 'center', fontSize: 7 },
                         11: { halign: 'center' },
@@ -1591,8 +1591,8 @@
                     headStyles: { fillColor: [16, 185, 129], textHexColor: '#ffffff', halign: 'center' },
                     bodyStyles: { textColor: corTexto, fontSize: 8 },
                     columnStyles: {
-                        1: { halign: 'right', fontStyle: 'bold' },
-                        2: { halign: 'right', fontStyle: 'bold' }
+                        1: { halign: 'right', fontStyle: 'bold', minCellWidth: 25 },
+                        2: { halign: 'right', fontStyle: 'bold', minCellWidth: 30 }
                     }
                 });
             }
