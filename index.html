@@ -1423,14 +1423,25 @@
         window.proximaPagina = function() { if (paginaAtual < Math.ceil(notesFiltradas.length / registrosPorPagina)) { paginaAtual++; renderizarTabelaPaginada(); } };
 
         window.exportarParaPDF = function() {
-            const checkboxes = document.querySelectorAll('.select-nota:checked');
-            if (checkboxes.length === 0) {
-                alert("Marque as caixas de seleção na tabela para escolher quais registros exportar para o PDF!");
-                return;
+            const masterCheckbox = document.getElementById('chkSelecionarTodos');
+            let dadosParaPdf = [];
+
+            if (masterCheckbox && masterCheckbox.checked) {
+                dadosParaPdf = notesFiltradas; 
+            } else {
+                const checkboxes = document.querySelectorAll('.select-nota:checked');
+                if (checkboxes.length === 0) {
+                    alert("Marque as caixas de seleção na tabela para escolher quais registros exportar para o PDF!");
+                    return;
+                }
+                const idsSelecionados = Array.from(checkboxes).map(cb => cb.getAttribute('data-id'));
+                dadosParaPdf = todasNotasMemoria.filter(nota => idsSelecionados.includes(nota.id));
             }
 
-            const idsSelecionados = Array.from(checkboxes).map(cb => cb.getAttribute('data-id'));
-            const dadosParaPdf = todasNotasMemoria.filter(nota => idsSelecionados.includes(nota.id));
+            if (dadosParaPdf.length === 0) {
+                alert("Nenhum dado disponível para exportação!");
+                return;
+            }
 
             const notasAgrupadas = {};
             dadosParaPdf.forEach(n => {
